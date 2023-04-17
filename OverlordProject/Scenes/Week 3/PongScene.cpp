@@ -36,12 +36,10 @@ void PongScene::Initialize()
 	m_pPeddleLeft = AddChild(new CubePrefab(.5f, 4, 1, XMFLOAT4{ Colors::White }));
 	pRigidBodyComponent = m_pPeddleLeft->AddComponent(new RigidBodyComponent(true));
 	pRigidBodyComponent->AddCollider(PxBoxGeometry(.25f, 2.f, .5f), *pDefaultMaterial);
-	pRigidBodyComponent->SetKinematic(true);
 
 	m_pPeddleRight = AddChild(new CubePrefab(.5f, 4, 1, XMFLOAT4{ Colors::White }));
 	pRigidBodyComponent = m_pPeddleRight->AddComponent(new RigidBodyComponent(true));
 	pRigidBodyComponent->AddCollider(PxBoxGeometry(.25f, 2.f, .5f), *pDefaultMaterial);
-	pRigidBodyComponent->SetKinematic(true);
 
 	//Borders
 	m_pUpperBoundary = AddChild(new CubePrefab(30, 2, 2, XMFLOAT4{ Colors::Transparent }));
@@ -146,4 +144,12 @@ void PongScene::Reset()
 	m_pPeddleRight->GetTransform()->Translate(10, 10, 0);
 
 	m_IsStarted = false;
+}
+
+void PongScene::OnGUI()
+{
+	ImGui::Text("START game: \t\t\t  'SPACE'");
+	ImGui::Text("Move LEFT Peddle:\t 'W' & 'S'");
+	ImGui::Text("Move RIGHT Peddle:\t'UP' & 'DOWN'");
+	ImGui::Text("RESET scene: \t\t\t  'R'");
 }

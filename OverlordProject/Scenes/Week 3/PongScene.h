@@ -14,6 +14,7 @@ public:
 protected:
 	void Initialize() override;
 	void Update() override;
+	void OnGUI() override;
 
 	void Start();
 	void Reset() override;

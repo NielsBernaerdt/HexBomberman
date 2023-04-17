@@ -64,7 +64,8 @@ float3 gLightDirection :DIRECTION
 <
 	string UIName = "Light Direction";
 	string Object = "TargetLight";
-> = float3(0.577f, 0.577f, 0.577f);
+> = float3(0.551f, -0.534f, 0.641f);
+//> = float3(0.577f, 0.577f, 0.577f);
 
 //DIFFUSE
 //*******
