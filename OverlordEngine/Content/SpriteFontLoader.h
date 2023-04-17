@@ -16,4 +16,3 @@ protected:
 	SpriteFont* LoadContent(const ContentLoadInfo& loadInfo) override;
 	void Destroy(SpriteFont* objToDestroy) override;
 };
-
