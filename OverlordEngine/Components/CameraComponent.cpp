@@ -63,8 +63,40 @@ void CameraComponent::SetActive(bool active)
 	pScene->SetActiveCamera(active?this:nullptr); //Switch to default camera if active==false
 }
 
-GameObject* CameraComponent::Pick(CollisionGroup /*ignoreGroups*/) const
+GameObject* CameraComponent::Pick(CollisionGroup ignoreGroups) const
 {
-	TODO_W7(L"Implement Picking Logic")
+	const auto posMouse = m_pScene->GetSceneContext().pInput->GetMousePosition();
+	const float halfWidth{ m_pScene->GetSceneContext().windowWidth / 2 };
+	const float halfHeight{ m_pScene->GetSceneContext().windowHeight / 2 };
+	float xNdc = (posMouse.x - halfWidth) / halfWidth;
+	float yNdc = (halfHeight - posMouse.y) / halfHeight;
+
+	const XMMATRIX viewProjInv = XMLoadFloat4x4(&m_ViewProjectionInverse);
+	const XMVECTOR nearPoint = XMVector3TransformCoord({ xNdc, yNdc, 0, 0 }, viewProjInv);
+	XMFLOAT3 nearP{};
+	XMStoreFloat3(&nearP, nearPoint);
+	const XMVECTOR farPoint = XMVector3TransformCoord({ xNdc, yNdc, 1, 0 }, viewProjInv);
+	XMFLOAT3 farP{};
+	XMStoreFloat3(&farP, farPoint);
+
+	PxQueryFilterData filterData{ };
+	filterData.data.word0 = ~UINT(ignoreGroups);
+
+	const PxVec3 originRay = PxVec3(nearP.x, nearP.y, nearP.z);
+	PxVec3 dirRay = PxVec3(farP.x - nearP.x, farP.y - nearP.y, farP.z - nearP.z);
+	dirRay.normalize();
+	PxRaycastBuffer hit{ };
+	if (m_pScene->GetPhysxProxy()->Raycast(originRay, dirRay, PX_MAX_F32, hit, PxHitFlag::eDEFAULT, filterData))
+	{
+		if (const auto actorHit = hit.getAnyHit(0).actor)
+		{
+			if (const auto userData = actorHit->userData)
+			{
+				const auto obj = reinterpret_cast<BaseComponent*>(userData);
+				return obj->GetGameObject();
+			}
+		}
+	}
+
 	return nullptr;
 }
