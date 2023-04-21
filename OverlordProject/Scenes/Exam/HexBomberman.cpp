@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "HexBomberman.h"
 
-#include "HexGrid/HexCell.h"
-#include "HexGrid/HexGrid.h"
+#include "HexBomberman/HexGrid/HexGrid.h"
+#include "HexBomberman/HexGrid/HexCell.h"
 
 void HexBomberman::Initialize()
 {
@@ -17,14 +17,14 @@ void HexBomberman::Update()
 		{
 			const auto pPickedCell = pPickedObject->GetComponent<HexCell>();
 
-			pPickedCell->SpawnCrate();
+			pPickedCell->StartExplosion();
 
-			for(const auto neighbor : pPickedCell->GetBlastTiles(blastRange))
+			for(const auto neighbor : pPickedCell->GetTilesToExplode(blastRange))
 			{
 				if (neighbor == nullptr)
 					continue;
 
-				neighbor->SpawnCrate();
+				neighbor->StartExplosion();
 			}
 		}
 	}

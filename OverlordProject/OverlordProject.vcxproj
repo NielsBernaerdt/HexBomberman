@@ -93,9 +93,13 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HexGrid\HexGrid.cpp" />
+    <ClCompile Include="HexBomberman\PowerUps\ExtraBomb.cpp" />
+    <ClCompile Include="HexBomberman\Gameplay\Explosion.cpp" />
+    <ClCompile Include="HexBomberman\PowerUps\Crate.cpp" />
+    <ClCompile Include="HexBomberman\HexGrid\HexGrid.cpp" />
+    <ClCompile Include="HexBomberman\PowerUps\IncreaseExplosion.cpp" />
     <ClCompile Include="Scenes\Exam\HexBomberman.cpp" />
-    <ClCompile Include="HexGrid\HexCell.cpp" />
+    <ClCompile Include="HexBomberman\HexGrid\HexCell.cpp" />
     <ClCompile Include="Materials\DiffuseMaterial_Skinned.cpp" />
     <ClCompile Include="Prefabs\BoneObject.cpp" />
     <ClCompile Include="Materials\DiffuseMaterial.cpp" />
@@ -142,10 +146,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HexGrid\HexGrid.h" />
-    <ClInclude Include="HexGrid\HexUtils.h" />
+    <ClInclude Include="HexBomberman\PowerUps\ExtraBomb.h" />
+    <ClInclude Include="HexBomberman\Gameplay\Explosion.h" />
+    <ClInclude Include="HexBomberman\PowerUps\Crate.h" />
+    <ClInclude Include="HexBomberman\HexGrid\HexGrid.h" />
+    <ClInclude Include="HexBomberman\HexGrid\HexUtils.h" />
+    <ClInclude Include="HexBomberman\PowerUps\IncreaseExplosion.h" />
     <ClInclude Include="Scenes\Exam\HexBomberman.h" />
-    <ClInclude Include="HexGrid\HexCell.h" />
+    <ClInclude Include="HexBomberman\HexGrid\HexCell.h" />
     <ClInclude Include="Materials\DiffuseMaterial_Skinned.h" />
     <ClInclude Include="Prefabs\BoneObject.h" />
     <ClInclude Include="Materials\DiffuseMaterial.h" />
