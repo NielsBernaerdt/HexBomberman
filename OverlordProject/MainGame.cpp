@@ -6,7 +6,7 @@
 //#define W4
 //#define W5
 //#define W6
-#define W7
+//#define W7
 // #define W8
 // #define W9
 // #define W10
@@ -14,6 +14,8 @@
 /*MILESTONE Content*/
 //#define MILESTONE_1
 // #define MILESTONE_2
+ #define EXAM
+
 
 #pragma region Lab/Milestone Includes
 #ifdef W3
@@ -74,6 +76,10 @@
 #include "Scenes/Week 8/ShadowMappingScene.h"
 #include "Scenes/Week 9/ParticleScene.h"
 #include "Scenes/Week 10/PostProcessingScene.h"
+#endif
+
+#ifdef EXAM
+#include "Scenes/Exam/HexBomberman.h"
 #endif
 
 #pragma endregion
@@ -159,6 +165,10 @@ void MainGame::Initialize()
 	SceneManager::Get()->AddGameScene(new ShadowMappingScene());
 	SceneManager::Get()->AddGameScene(new ParticleScene());
 	SceneManager::Get()->AddGameScene(new PostProcessingScene());
+#endif
+
+#ifdef EXAM
+	SceneManager::Get()->AddGameScene(new HexBomberman());
 #endif
 }
 

@@ -93,6 +93,9 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HexGrid\HexGrid.cpp" />
+    <ClCompile Include="Scenes\Exam\HexBomberman.cpp" />
+    <ClCompile Include="HexGrid\HexCell.cpp" />
     <ClCompile Include="Materials\DiffuseMaterial_Skinned.cpp" />
     <ClCompile Include="Prefabs\BoneObject.cpp" />
     <ClCompile Include="Materials\DiffuseMaterial.cpp" />
@@ -139,6 +142,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HexGrid\HexGrid.h" />
+    <ClInclude Include="HexGrid\HexUtils.h" />
+    <ClInclude Include="Scenes\Exam\HexBomberman.h" />
+    <ClInclude Include="HexGrid\HexCell.h" />
     <ClInclude Include="Materials\DiffuseMaterial_Skinned.h" />
     <ClInclude Include="Prefabs\BoneObject.h" />
     <ClInclude Include="Materials\DiffuseMaterial.h" />
