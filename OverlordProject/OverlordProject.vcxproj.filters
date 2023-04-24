@@ -35,6 +35,10 @@
     <ClCompile Include="HexBomberman\Gameplay\Explosion.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\ExtraBomb.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\IncreaseExplosion.cpp" />
+    <ClCompile Include="HexBomberman\Player\PlayerPawn.cpp" />
+    <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow.cpp" />
+    <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.cpp" />
+    <ClCompile Include="Scenes\Week 8\ShadowMappingScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -71,5 +75,9 @@
     <ClInclude Include="HexBomberman\Gameplay\Explosion.h" />
     <ClInclude Include="HexBomberman\PowerUps\ExtraBomb.h" />
     <ClInclude Include="HexBomberman\PowerUps\IncreaseExplosion.h" />
+    <ClInclude Include="HexBomberman\Player\PlayerPawn.h" />
+    <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow.h" />
+    <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.h" />
+    <ClInclude Include="Scenes\Week 8\ShadowMappingScene.h" />
   </ItemGroup>
 </Project>

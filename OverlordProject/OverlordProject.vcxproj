@@ -98,6 +98,9 @@
     <ClCompile Include="HexBomberman\PowerUps\Crate.cpp" />
     <ClCompile Include="HexBomberman\HexGrid\HexGrid.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\IncreaseExplosion.cpp" />
+    <ClCompile Include="HexBomberman\Player\PlayerPawn.cpp" />
+    <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow.cpp" />
+    <ClCompile Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.cpp" />
     <ClCompile Include="Scenes\Exam\HexBomberman.cpp" />
     <ClCompile Include="HexBomberman\HexGrid\HexCell.cpp" />
     <ClCompile Include="Materials\DiffuseMaterial_Skinned.cpp" />
@@ -122,6 +125,7 @@
     <ClCompile Include="Scenes\Week 7\CharacterScene.cpp" />
     <ClCompile Include="Scenes\Week 7\FontTestScene.cpp" />
     <ClCompile Include="Scenes\Week 7\PickingScene.cpp" />
+    <ClCompile Include="Scenes\Week 8\ShadowMappingScene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
@@ -152,6 +156,9 @@
     <ClInclude Include="HexBomberman\HexGrid\HexGrid.h" />
     <ClInclude Include="HexBomberman\HexGrid\HexUtils.h" />
     <ClInclude Include="HexBomberman\PowerUps\IncreaseExplosion.h" />
+    <ClInclude Include="HexBomberman\Player\PlayerPawn.h" />
+    <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow.h" />
+    <ClInclude Include="Materials\Shadow\DiffuseMaterial_Shadow_Skinned.h" />
     <ClInclude Include="Scenes\Exam\HexBomberman.h" />
     <ClInclude Include="HexBomberman\HexGrid\HexCell.h" />
     <ClInclude Include="Materials\DiffuseMaterial_Skinned.h" />
@@ -176,6 +183,7 @@
     <ClInclude Include="Scenes\Week 7\CharacterScene.h" />
     <ClInclude Include="Scenes\Week 7\FontTestScene.h" />
     <ClInclude Include="Scenes\Week 7\PickingScene.h" />
+    <ClInclude Include="Scenes\Week 8\ShadowMappingScene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Scenes\Week 4\UberMaterialScene.h" />
