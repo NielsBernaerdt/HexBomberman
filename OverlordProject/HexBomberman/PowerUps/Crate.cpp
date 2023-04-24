@@ -13,7 +13,6 @@ void Crate::Initialize(const SceneContext&)
 void Crate::SpawnPowerUp(const BaseComponent* pHexCellParent) const
 {
 	const float randomPercentage{ rand() % 101 / 100.f };
-    Logger::LogInfo(L"Random value: {}", randomPercentage);
 	if(randomPercentage <= m_SpawnChance)
 	{
         GameObject* pPowerUp{ nullptr };
