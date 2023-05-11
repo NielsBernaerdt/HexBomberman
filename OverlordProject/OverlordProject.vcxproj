@@ -93,6 +93,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HexBomberman\Gameplay\Bomb.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\ExtraBomb.cpp" />
     <ClCompile Include="HexBomberman\Gameplay\Explosion.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\Crate.cpp" />
@@ -150,6 +151,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HexBomberman\Gameplay\Bomb.h" />
     <ClInclude Include="HexBomberman\PowerUps\ExtraBomb.h" />
     <ClInclude Include="HexBomberman\Gameplay\Explosion.h" />
     <ClInclude Include="HexBomberman\PowerUps\Crate.h" />

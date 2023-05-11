@@ -2,6 +2,13 @@
 #include "Explosion.h"
 
 #include "Prefabs/CubePrefab.h"
+#include "HexBomberman/HexGrid/HexCell.h"
+
+Explosion::Explosion(HexCell* pOwnerTile)
+	: m_pOwnerTile(pOwnerTile)
+{
+}
+
 
 void Explosion::Initialize(const SceneContext&)
 {

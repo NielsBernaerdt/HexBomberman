@@ -18,25 +18,20 @@ public:
 	HexCell* GetNeighbor(HexDirection direction) const;
 	void SetNeighbor(HexDirection direction, HexCell* cell);
 
-	void StartExplosion();
+	void PlaceBomb();
+	
 	std::vector<HexCell*> GetTilesToExplode(int length) const;
 
 	bool HasCrate() const { return m_HasCrate; }
+	void DestroyCrate();
 
 protected:
 	void Initialize(const SceneContext&) override;
-	void Update(const SceneContext&) override;
 
 private:
 	std::vector<HexCell*> m_pNeighbors{6, nullptr};
 
 	GameObject* m_pGroundTile{ nullptr };
-
-	bool m_IsExploding{ false };
-	const float m_ExplosionDuration{ 0.5f };
-	float m_AccTime{};
-	GameObject* m_pExplosionObject{ nullptr };
-	void EndExplosion();
 
 	bool m_HasCrate{ true };
 	Crate* m_pCrateComponent{ nullptr };

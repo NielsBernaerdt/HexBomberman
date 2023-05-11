@@ -53,15 +53,7 @@ void HexBomberman::Update()
 		{
 			const auto pPickedCell = pPickedObject->GetComponent<HexCell>();
 
-			pPickedCell->StartExplosion();
-
-			for(const auto neighbor : pPickedCell->GetTilesToExplode(blastRange))
-			{
-				if (neighbor == nullptr)
-					continue;
-
-				neighbor->StartExplosion();
-			}
+			pPickedCell->PlaceBomb();
 		}
 	}
 }

@@ -2,7 +2,7 @@
 #include "HexCell.h"
 
 #include "HexUtils.h"
-#include "HexBomberman/Gameplay/Explosion.h"
+#include "HexBomberman/Gameplay/Bomb.h"
 #include "HexBomberman/PowerUps/Crate.h"
 #include "Prefabs/SpherePrefab.h"
 
@@ -28,19 +28,6 @@ void HexCell::Initialize(const SceneContext&)
 	m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
 }
 
-void HexCell::Update(const SceneContext& sceneContext)
-{
-	if(m_IsExploding == true)
-	{
-		m_AccTime += sceneContext.pGameTime->GetElapsed();
-		if(m_AccTime >= m_ExplosionDuration)
-		{
-			EndExplosion();
-		}
-	}
-}
-
-
 HexCell* HexCell::GetNeighbor(HexDirection direction) const
 {
 	return m_pNeighbors[static_cast<int>(direction)];
@@ -52,39 +39,27 @@ void HexCell::SetNeighbor(HexDirection direction, HexCell* cell)
 	cell->GetNeighbors()[static_cast<int>(HexDirectionExtensions::Opposite(direction))] = this;
 }
 
-void HexCell::StartExplosion()
+void HexCell::PlaceBomb()
 {
-	if (m_IsExploding == true)
-		return;
-
-	//Explosion Object
-	m_pExplosionObject = m_pGameObject->AddChild(new GameObject{});
-	m_pExplosionObject->AddComponent(new Explosion{});
-	m_pExplosionObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
-	m_pExplosionObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
-
-	m_IsExploding = true;
+	//Bomb Object
+	const auto bombObject = m_pGameObject->AddChild(new GameObject{});
+	bombObject->AddComponent(new Bomb{this});
+	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
+	bombObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
 }
 
-void HexCell::EndExplosion()
+void HexCell::DestroyCrate()
 {
-	m_AccTime = 0.f;
-	m_pGameObject->RemoveChild(m_pExplosionObject, true);
-	m_IsExploding = false;
-
-	//todo: Do this in Crate.cpp using collision event?
-	if(m_HasCrate == true)
-	{
-		m_HasCrate = false;
-		m_pCrateComponent->SpawnPowerUp(this);
-		m_pGameObject->RemoveChild(m_pCrateComponent->GetGameObject(), true);
-	}
+	m_HasCrate = false;
+	m_pCrateComponent->SpawnPowerUp(this);
+	m_pGameObject->RemoveChild(m_pCrateComponent->GetGameObject(), true);
 }
 
 
 std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 {
-	std::vector<HexCell*> blastTiles{};
+	const int maxNrTilesToExplode{ 6 * length };
+	std::vector<HexCell*> blastTiles{ static_cast<std::vector<HexCell*>::size_type>(maxNrTilesToExplode) };
 
 	for(int currentHexDirection{}; currentHexDirection < m_pNeighbors.size(); ++currentHexDirection)
 	{
