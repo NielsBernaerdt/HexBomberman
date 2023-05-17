@@ -58,19 +58,22 @@ void ParticleEmitterComponent::Update(const SceneContext& sceneContext)
 	sceneContext.d3dContext.pDeviceContext->Map(m_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	const auto pBuffer{ static_cast<VertexParticle*>(mappedResource.pData) };
 
+	bool delaySpawn = false;
 	for (unsigned int i = 0; i < m_ParticleCount; ++i)
 	{
-		if (m_ParticlesArray[i].isActive)
+		Particle& particle{ m_ParticlesArray[i] };
+		if (particle.isActive)
 		{
-			UpdateParticle(m_ParticlesArray[i], elapsedSec);
+			UpdateParticle(particle, elapsedSec);
 		}
-		if (m_ParticlesArray[i].isActive == false && m_LastParticleSpawn >= particleInterval)
+		if (!delaySpawn && !particle.isActive && (m_LastParticleSpawn >= particleInterval))
 		{
-			SpawnParticle(m_ParticlesArray[i]);
+			SpawnParticle(particle);
+			delaySpawn = true;
 		}
-		if (m_ParticlesArray[i].isActive)
+		if (particle.isActive)
 		{
-			pBuffer[m_ActiveParticles] = m_ParticlesArray[i].vertexInfo;
+			pBuffer[m_ActiveParticles] = particle.vertexInfo;
 			++m_ActiveParticles;
 		}
 	}

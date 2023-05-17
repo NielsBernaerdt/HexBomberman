@@ -15,7 +15,7 @@ protected:
 	void OnGUI() override;
 
 private:
-	bool m_AutoMove{ false };
+	bool m_AutoMove{ true };
 
 	ParticleEmitterComponent* m_pEmitter{};
 	GameObject* m_pTeapot{};
