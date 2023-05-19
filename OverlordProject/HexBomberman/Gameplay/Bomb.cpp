@@ -75,5 +75,5 @@ void Bomb::EndExplosion() const
 		}
 	}
 	//Remove Bomb & all Explosion Objects
-	m_pGameObject->GetParent()->RemoveChild(m_pGameObject);
+	m_pGameObject->GetParent()->RemoveChild(m_pGameObject, true);
 }

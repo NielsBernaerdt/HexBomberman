@@ -58,8 +58,8 @@ void HexCell::DestroyCrate()
 
 std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 {
-	const int maxNrTilesToExplode{ 6 * length };
-	std::vector<HexCell*> blastTiles{ static_cast<std::vector<HexCell*>::size_type>(maxNrTilesToExplode) };
+	const std::vector<HexCell*>::size_type maxNrTilesToExplode = 6 * length;
+	std::vector<HexCell*> blastTiles{ maxNrTilesToExplode };
 
 	for(int currentHexDirection{}; currentHexDirection < m_pNeighbors.size(); ++currentHexDirection)
 	{
@@ -70,7 +70,6 @@ std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 		}
 
 		blastTiles.push_back(currentCell);
-
 		if (currentCell->HasCrate() == true)
 		{
 			continue;
@@ -79,10 +78,14 @@ std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 		for (int i{}; i < length - 1; ++i)
 		{
 			currentCell = currentCell->GetNeighbor(static_cast<HexDirection>(currentHexDirection));
+			if (currentCell == nullptr)
+			{
+				break;
+			}
+
 			blastTiles.push_back(currentCell);
 
-			if (currentCell != nullptr
-				&& currentCell->HasCrate() == true)
+			if (currentCell->HasCrate() == true)
 			{
 				break;
 			}
