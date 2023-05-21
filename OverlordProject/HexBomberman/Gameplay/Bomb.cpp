@@ -13,9 +13,16 @@ Bomb::Bomb(HexCell* ownerCell)
 
 void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 {
+	//Materials
+	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
+	//Geometry
 	m_pGameObject->AddChild(new SpherePrefab{0.5f});
+	//Actor
+	const auto bombTrigger = m_pGameObject->AddComponent(new RigidBodyComponent(false));
+	bombTrigger->AddCollider(PxBoxGeometry{ 0.5f, 0.5f, 0.5f }, *pDefaultMaterial);
 
-	Explode(3);
+	if(m_pOwnerCell)
+		Explode(3);
 }
 
 void Bomb::Update(const SceneContext& sceneContext)
@@ -23,7 +30,8 @@ void Bomb::Update(const SceneContext& sceneContext)
 	m_AccTime += sceneContext.pGameTime->GetElapsed();
 	if (m_AccTime >= m_ExplosionDuration)
 	{
-		EndExplosion();
+		if(m_pOwnerCell)
+			EndExplosion();
 	}
 }
 
