@@ -44,7 +44,7 @@ void HexBomberman::Initialize()
 	inputAction = InputAction(CharacterMoveBackward, InputState::down, VK_DOWN);
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
-	inputAction = InputAction(CharacterPlaceBomb, InputState::down, VK_SPACE);
+	inputAction = InputAction(CharacterPlaceBomb, InputState::released, VK_SPACE);
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
 	//Set Trigger Callback functions

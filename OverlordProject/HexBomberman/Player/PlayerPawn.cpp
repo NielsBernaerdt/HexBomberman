@@ -2,6 +2,7 @@
 #include "PlayerPawn.h"
 
 #include "HexBomberman/HexGrid/HexCell.h"
+#include "HexBomberman/PowerUps/BasePowerUp.h"
 
 PlayerPawn::PlayerPawn(const CharacterDesc& characterDesc) :
 	m_CharacterDesc{ characterDesc },
@@ -18,13 +19,35 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 void PlayerPawn::SetCurrentTile(HexCell* pHexCell)
 {
 	m_pCurrentCell = pHexCell;
+
+	if(pHexCell->HasPowerUp() == true)
+	{
+		pHexCell->CollectPowerUp(this);
+	}
 }
 
-void PlayerPawn::PlaceBomb() const
+void PlayerPawn::IncreaseBlastRange()
 {
-	if (m_pCurrentCell)
+	++m_BlastRange;
+}
+
+void PlayerPawn::IncreaseNrBombs()
+{
+	++m_NrBombs;
+}
+
+void PlayerPawn::BombExploded()
+{
+	--m_NrBombsInPlay;
+}
+
+void PlayerPawn::PlaceBomb()
+{
+	if (m_pCurrentCell
+		&& m_NrBombsInPlay < m_NrBombs)
 	{
-		m_pCurrentCell->PlaceBomb();
+		++m_NrBombsInPlay;
+		m_pCurrentCell->PlaceBomb(this, m_BlastRange);
 	}
 }
 

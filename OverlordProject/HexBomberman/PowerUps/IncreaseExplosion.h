@@ -1,6 +1,7 @@
 #pragma once
+#include "BasePowerUp.h"
 
-class IncreaseExplosion : public BaseComponent
+class IncreaseExplosion : public BasePowerUp
 {
 public:
 	IncreaseExplosion() = default;
@@ -9,6 +10,8 @@ public:
 	IncreaseExplosion(IncreaseExplosion&& other) noexcept = delete;
 	IncreaseExplosion& operator=(const IncreaseExplosion& other) = delete;
 	IncreaseExplosion& operator=(IncreaseExplosion&& other) noexcept = delete;
+
+	void CollectPowerUp(PlayerPawn* pPlayer) override;
 
 protected:
 	void Initialize(const SceneContext& sceneContext) override;

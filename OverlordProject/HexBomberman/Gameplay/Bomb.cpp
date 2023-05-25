@@ -3,10 +3,13 @@
 
 #include "Explosion.h"
 #include "HexBomberman/HexGrid/HexCell.h"
+#include "HexBomberman/Player/PlayerPawn.h"
 #include "Prefabs/SpherePrefab.h"
 
-Bomb::Bomb(HexCell* ownerCell)
+Bomb::Bomb(HexCell* ownerCell, PlayerPawn* pPlayer, int blastRange)
 	: m_pOwnerCell(ownerCell)
+	, m_pPlayer(pPlayer)
+	, m_BlastRange(blastRange)
 {
 }
 
@@ -22,7 +25,7 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 	//bombTrigger->AddCollider(PxBoxGeometry{ 0.5f, 0.5f, 0.5f }, *pDefaultMaterial);
 
 	if(m_pOwnerCell)
-		Explode(3);
+		Explode(m_BlastRange);
 }
 
 void Bomb::Update(const SceneContext& sceneContext)
@@ -71,6 +74,8 @@ void Bomb::Explode(int blastRange)
 
 void Bomb::EndExplosion() const
 {
+	m_pPlayer->BombExploded();
+
 	//todo: Do this in Crate.cpp using collision event?
 	for(auto explosionObject : m_pExplosionObjects)
 	{

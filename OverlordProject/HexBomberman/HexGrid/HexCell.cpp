@@ -6,6 +6,7 @@
 #include "HexBomberman/Player/PlayerPawn.h"
 #include "HexBomberman/PowerUps/Crate.h"
 #include "Prefabs/SpherePrefab.h"
+#include "HexBomberman/PowerUps/BasePowerUp.h"
 
 void HexCell::Initialize(const SceneContext&)
 {
@@ -16,21 +17,31 @@ void HexCell::Initialize(const SceneContext&)
 	m_pGroundTile = m_pGameObject->AddChild(new SpherePrefab{ 1, 6, XMFLOAT4(Colors::Green) });
 	m_pGroundTile->GetTransform()->Scale(1.f, 0.01f, 1.f);
 	m_pGroundTile->GetTransform()->Rotate(0.f, 30.f, 0.f, true);
-
+	
 	//Actor
 	const auto pRigidBody = m_pGameObject->AddComponent(new RigidBodyComponent(true));
 	pRigidBody->AddCollider(PxSphereGeometry{ 1.f }, *pMaterial, true);
-	pRigidBody->Translate(m_pGroundTile->GetTransform()->GetPosition());
 
-	//Crate
-	if (std::rand() % 3 != 0) //2 / 3 chance to spawn crate
+
+}
+
+void HexCell::Update(const SceneContext&)
+{
+	if(m_UpdateOnce == true) //Because the transform of the Hexcell is not yet updated during intialization
 	{
-		m_HasCrate = true;
-		const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
-		m_pCrateComponent = pCrateObject->AddComponent(new Crate{});
-		m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
+		m_UpdateOnce = false;
+
+		//Crate
+		if (std::rand() % 3 != 0) //2 / 3 chance to spawn crate
+		{
+			m_HasCrate = true;
+			const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
+			m_pCrateComponent = pCrateObject->AddComponent(new Crate{});
+			m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
+		}
 	}
 }
+
 
 HexCell* HexCell::GetNeighbor(HexDirection direction) const
 {
@@ -43,11 +54,11 @@ void HexCell::SetNeighbor(HexDirection direction, HexCell* cell)
 	cell->GetNeighbors()[static_cast<int>(HexDirectionExtensions::Opposite(direction))] = this;
 }
 
-void HexCell::PlaceBomb()
+void HexCell::PlaceBomb(PlayerPawn* pPlayer, int blastRange)
 {
 	//Bomb Object
 	const auto bombObject = m_pGameObject->AddChild(new GameObject{});
-	bombObject->AddComponent(new Bomb{this});
+	bombObject->AddComponent(new Bomb{this, pPlayer, blastRange});
 	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
 	//bombObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
 }
@@ -59,6 +70,18 @@ void HexCell::DestroyCrate()
 	m_pGameObject->RemoveChild(m_pCrateComponent->GetGameObject(), true);
 }
 
+void HexCell::AddPowerUp(BasePowerUp* pPowerUp)
+{
+	m_HasPowerUp = true;
+	m_pPowerUp = pPowerUp;
+}
+
+void HexCell::CollectPowerUp(PlayerPawn* pPlayer)
+{
+	m_HasPowerUp = false;
+	m_pPowerUp->CollectPowerUp(pPlayer);
+	m_pGameObject->RemoveChild(m_pPowerUp->GetGameObject(), true);
+}
 
 std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 {

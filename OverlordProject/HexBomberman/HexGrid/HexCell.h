@@ -1,6 +1,8 @@
 #pragma once
 #include "HexUtils.h"
 
+class PlayerPawn;
+class BasePowerUp;
 class Crate;
 
 class HexCell : public BaseComponent
@@ -18,15 +20,20 @@ public:
 	HexCell* GetNeighbor(HexDirection direction) const;
 	void SetNeighbor(HexDirection direction, HexCell* cell);
 
-	void PlaceBomb();
+	void PlaceBomb(PlayerPawn* pPlayer, int blastRange);
 	
 	std::vector<HexCell*> GetTilesToExplode(int length) const;
 
 	bool HasCrate() const { return m_HasCrate; }
 	void DestroyCrate();
 
+	void AddPowerUp(BasePowerUp* pPowerUp);
+	bool HasPowerUp() { return m_HasPowerUp; }
+	void CollectPowerUp(PlayerPawn* pPlayer);
+
 protected:
 	void Initialize(const SceneContext&) override;
+	void Update(const SceneContext&) override;
 
 private:
 	std::vector<HexCell*> m_pNeighbors{6, nullptr};
@@ -35,4 +42,9 @@ private:
 
 	bool m_HasCrate{ false };
 	Crate* m_pCrateComponent{ nullptr };
+
+	bool m_UpdateOnce{ true };
+
+	bool m_HasPowerUp{ false };
+	BasePowerUp* m_pPowerUp{ nullptr };
 };

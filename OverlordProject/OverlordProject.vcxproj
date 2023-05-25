@@ -93,6 +93,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HexBomberman\PowerUps\BasePowerUp.cpp" />
     <ClCompile Include="HexBomberman\Gameplay\Bomb.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\ExtraBomb.cpp" />
     <ClCompile Include="HexBomberman\Gameplay\Explosion.cpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="HexBomberman\HexGrid\HexGrid.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\IncreaseExplosion.cpp" />
     <ClCompile Include="HexBomberman\Player\PlayerPawn.cpp" />
+    <ClCompile Include="HexBomberman\PowerUps\IncreaseMovementSpeed.cpp" />
     <ClCompile Include="Materials\BasicMaterial.cpp" />
     <ClCompile Include="Materials\BasicMaterial_Deferred.cpp" />
     <ClCompile Include="Materials\Post\PostGrayscale.cpp" />
@@ -158,6 +160,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HexBomberman\PowerUps\BasePowerUp.h" />
     <ClInclude Include="HexBomberman\Gameplay\Bomb.h" />
     <ClInclude Include="HexBomberman\PowerUps\ExtraBomb.h" />
     <ClInclude Include="HexBomberman\Gameplay\Explosion.h" />
@@ -166,6 +169,7 @@
     <ClInclude Include="HexBomberman\HexGrid\HexUtils.h" />
     <ClInclude Include="HexBomberman\PowerUps\IncreaseExplosion.h" />
     <ClInclude Include="HexBomberman\Player\PlayerPawn.h" />
+    <ClInclude Include="HexBomberman\PowerUps\IncreaseMovementSpeed.h" />
     <ClInclude Include="Materials\BasicMaterial.h" />
     <ClInclude Include="Materials\BasicMaterial_Deferred.h" />
     <ClInclude Include="Materials\Post\PostGrayscale.h" />
