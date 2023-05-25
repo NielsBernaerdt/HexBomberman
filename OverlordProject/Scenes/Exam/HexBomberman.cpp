@@ -2,6 +2,7 @@
 #include "HexBomberman.h"
 
 #include "HexBomberman/Gameplay/Bomb.h"
+#include "HexBomberman/Gameplay/Explosion.h"
 #include "HexBomberman/HexGrid/HexGrid.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
@@ -25,6 +26,7 @@ void HexBomberman::Initialize()
 	characterDesc.actionId_MoveBackward = CharacterMoveBackward;
 	characterDesc.actionId_MoveLeft = CharacterMoveLeft;
 	characterDesc.actionId_MoveRight = CharacterMoveRight;
+	characterDesc.actionId_PlaceBomb = CharacterPlaceBomb;
 
 	m_pCharacter = AddChild(new PlayerPawn(characterDesc));
 	m_pCharacter->GetTransform()->Translate(-20.f, 0.f, 0.f);
@@ -42,29 +44,25 @@ void HexBomberman::Initialize()
 	inputAction = InputAction(CharacterMoveBackward, InputState::down, VK_DOWN);
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
-	//Bomb Object
-	const auto bombObject = AddChild(new GameObject{});
-	bombObject->AddComponent(new Bomb{ nullptr });
-	bombObject->GetTransform()->Translate(-3.f, 0.f, 0.f);
-	bombObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
+	inputAction = InputAction(CharacterPlaceBomb, InputState::down, VK_SPACE);
+	m_SceneContext.pInput->AddInputAction(inputAction);
 
+	//Set Trigger Callback functions
+	auto callback = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
+	{
+		if (pOtherObject == m_pCharacter && triggerAction == PxTriggerAction::ENTER)
+		{
+			m_pCharacter->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
+		}
+	};
 
+	for(const auto& cell: m_pHexGrid->GetGrid())
+	{
+		cell->GetGameObject()->SetOnTriggerCallBack(callback);
+	}
 }
 
 void HexBomberman::OnGUI()
 {
 	m_pCharacter->DrawImGui();
-}
-
-void HexBomberman::Update()
-{
-	if (InputManager::IsMouseButton(InputState::pressed, VK_RBUTTON))
-	{
-		if (const auto pPickedObject = m_SceneContext.pCamera->Pick())
-		{
-			const auto pPickedCell = pPickedObject->GetComponent<HexCell>();
-
-			pPickedCell->PlaceBomb();
-		}
-	}
 }

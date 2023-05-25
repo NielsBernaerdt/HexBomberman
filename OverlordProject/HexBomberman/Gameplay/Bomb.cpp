@@ -14,12 +14,12 @@ Bomb::Bomb(HexCell* ownerCell)
 void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 {
 	//Materials
-	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
+	//const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 	//Geometry
 	m_pGameObject->AddChild(new SpherePrefab{0.5f});
-	//Actor
-	const auto bombTrigger = m_pGameObject->AddComponent(new RigidBodyComponent(false));
-	bombTrigger->AddCollider(PxBoxGeometry{ 0.5f, 0.5f, 0.5f }, *pDefaultMaterial);
+	////Actor
+	//const auto bombTrigger = m_pGameObject->AddComponent(new RigidBodyComponent(false));
+	//bombTrigger->AddCollider(PxBoxGeometry{ 0.5f, 0.5f, 0.5f }, *pDefaultMaterial);
 
 	if(m_pOwnerCell)
 		Explode(3);
@@ -46,10 +46,9 @@ void Bomb::Explode(int blastRange)
 	auto destinationPos{ m_pOwnerCell->GetTransform()->GetPosition() };
 	explosionObject->GetTransform()->Translate(
 		destinationPos.x - currentPos.x
-		, destinationPos.y - currentPos.y + 0.5f
+		, destinationPos.y - currentPos.y
 		, destinationPos.z - currentPos.z
 	);
-	explosionObject->GetTransform()->Scale(.1f, .1f, .1f);
 
 	//Spawn Explosions on Neighbors
 	for (const auto neighbor : m_pOwnerCell->GetTilesToExplode(blastRange))
@@ -64,10 +63,9 @@ void Bomb::Explode(int blastRange)
 		destinationPos = neighbor->GetTransform()->GetPosition();
 		explosionObject->GetTransform()->Translate(
 			destinationPos.x - currentPos.x
-			, destinationPos.y - currentPos.y + 0.5f
+			, destinationPos.y - currentPos.y
 			, destinationPos.z - currentPos.z
 		);
-		explosionObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
 	}
 }
 

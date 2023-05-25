@@ -19,4 +19,6 @@ protected:
 
 private:
 	HexCell* m_pOwnerTile{ nullptr };
+
+	void AddCubeComp();
 };

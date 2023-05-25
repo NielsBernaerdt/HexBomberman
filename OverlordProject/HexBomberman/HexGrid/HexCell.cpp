@@ -3,6 +3,7 @@
 
 #include "HexUtils.h"
 #include "HexBomberman/Gameplay/Bomb.h"
+#include "HexBomberman/Player/PlayerPawn.h"
 #include "HexBomberman/PowerUps/Crate.h"
 #include "Prefabs/SpherePrefab.h"
 
@@ -18,14 +19,17 @@ void HexCell::Initialize(const SceneContext&)
 
 	//Actor
 	const auto pRigidBody = m_pGameObject->AddComponent(new RigidBodyComponent(true));
-	pRigidBody->AddCollider(PxSphereGeometry{ 1.f }, *pMaterial);
+	pRigidBody->AddCollider(PxSphereGeometry{ 1.f }, *pMaterial, true);
 	pRigidBody->Translate(m_pGroundTile->GetTransform()->GetPosition());
 
 	//Crate
-	m_HasCrate = true;
-	const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
-	m_pCrateComponent = pCrateObject->AddComponent(new Crate{});
-	m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
+	if (std::rand() % 3 != 0) //2 / 3 chance to spawn crate
+	{
+		m_HasCrate = true;
+		const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
+		m_pCrateComponent = pCrateObject->AddComponent(new Crate{});
+		m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
+	}
 }
 
 HexCell* HexCell::GetNeighbor(HexDirection direction) const
@@ -45,7 +49,7 @@ void HexCell::PlaceBomb()
 	const auto bombObject = m_pGameObject->AddChild(new GameObject{});
 	bombObject->AddComponent(new Bomb{this});
 	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
-	bombObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
+	//bombObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
 }
 
 void HexCell::DestroyCrate()

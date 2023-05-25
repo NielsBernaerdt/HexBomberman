@@ -29,8 +29,10 @@ struct CharacterDesc
 	int actionId_MoveRight{ -1 };
 	int actionId_MoveForward{ -1 };
 	int actionId_MoveBackward{ -1 };
-	int actionId_Jump{ -1 };
+	int actionId_PlaceBomb{ -1 };
 };
+
+class HexCell;
 
 class PlayerPawn : public GameObject
 {
@@ -43,6 +45,7 @@ public:
 	PlayerPawn& operator=(const PlayerPawn& other) = delete;
 	PlayerPawn& operator=(PlayerPawn&& other) noexcept = delete;
 
+	void SetCurrentTile(HexCell* pHexCell);
 	void DrawImGui();
 
 protected:
@@ -51,6 +54,7 @@ protected:
 
 private:
 	ControllerComponent* m_pControllerComponent{};
+	HexCell* m_pCurrentCell{ nullptr };
 
 	CharacterDesc m_CharacterDesc;
 	float m_TotalPitch{}, m_TotalYaw{};				//Total camera Pitch(X) and Yaw(Y) rotation
@@ -60,4 +64,6 @@ private:
 
 	XMFLOAT3 m_TotalVelocity{};						//TotalVelocity with X/Z for Horizontal Movement AND Y for Vertical Movement (fall/jump)
 	XMFLOAT3 m_CurrentDirection{};					//Current/Last Direction based on Camera forward/right (Stored for deacceleration)
+
+	void PlaceBomb() const;
 };

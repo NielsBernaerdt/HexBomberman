@@ -25,7 +25,7 @@ private:
 	HexCell* m_pOwnerCell;
 
 	std::vector<Explosion*> m_pExplosionObjects{};
-	const float m_ExplosionDuration{ 3.f };
+	const float m_ExplosionDuration{ 1.f };
 	float m_AccTime{};
 	void EndExplosion() const;
 };

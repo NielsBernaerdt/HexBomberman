@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PlayerPawn.h"
 
+#include "HexBomberman/HexGrid/HexCell.h"
+
 PlayerPawn::PlayerPawn(const CharacterDesc& characterDesc) :
 	m_CharacterDesc{ characterDesc },
 	m_MoveAcceleration(characterDesc.maxMoveSpeed / characterDesc.moveAccelerationTime),
@@ -11,6 +13,19 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 {
 	//Controller
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
+}
+
+void PlayerPawn::SetCurrentTile(HexCell* pHexCell)
+{
+	m_pCurrentCell = pHexCell;
+}
+
+void PlayerPawn::PlaceBomb() const
+{
+	if (m_pCurrentCell)
+	{
+		m_pCurrentCell->PlaceBomb();
+	}
 }
 
 void PlayerPawn::Update(const SceneContext& sceneContext)
@@ -39,6 +54,10 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	}
 	//todo: Optional: if move.x is near zero (abs(move.x) < epsilon), you could use the Left ThumbStickPosition.x for movement
 
+	if(sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_PlaceBomb))
+	{
+		PlaceBomb();
+	}
 
 	//************************
 	//GATHERING TRANSFORM INFO

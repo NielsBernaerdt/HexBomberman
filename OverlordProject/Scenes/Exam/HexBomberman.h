@@ -1,5 +1,6 @@
 #pragma once
 
+class HexGrid;
 class PlayerPawn;
 
 class HexBomberman : public GameScene
@@ -15,12 +16,12 @@ public:
 
 protected:
 	void Initialize() override;
-	void Update() override;
+	void Update() override {}
 	void Draw() override {}
 	void OnGUI() override;
 
 private:
-	GameObject* m_pHexGrid{ nullptr };
+	HexGrid* m_pHexGrid{ nullptr };
 
 	const int blastRange{ 2 };
 
@@ -29,7 +30,8 @@ private:
 		CharacterMoveLeft,
 		CharacterMoveRight,
 		CharacterMoveForward,
-		CharacterMoveBackward
+		CharacterMoveBackward,
+		CharacterPlaceBomb
 	};
 
 	PlayerPawn* m_pCharacter{};

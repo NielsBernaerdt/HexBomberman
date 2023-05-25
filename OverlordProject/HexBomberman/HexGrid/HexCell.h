@@ -33,6 +33,6 @@ private:
 
 	GameObject* m_pGroundTile{ nullptr };
 
-	bool m_HasCrate{ true };
+	bool m_HasCrate{ false };
 	Crate* m_pCrateComponent{ nullptr };
 };

@@ -13,6 +13,8 @@ public:
 	HexGrid& operator=(const HexGrid& other) = delete;
 	HexGrid& operator=(HexGrid&& other) noexcept = delete;
 
+	std::vector<HexCell*>& GetGrid() { return m_pGrid; }
+
 protected:
 	void Initialize(const SceneContext&) override;
 
