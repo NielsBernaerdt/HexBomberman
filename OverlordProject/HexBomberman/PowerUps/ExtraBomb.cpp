@@ -1,12 +1,20 @@
 #include "stdafx.h"
 #include "ExtraBomb.h"
 
-#include "Prefabs/CubePrefab.h"
 #include "HexBomberman/Player/PlayerPawn.h"
+#include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
 void ExtraBomb::Initialize(const SceneContext&)
 {
-	m_pGameObject->AddChild(new CubePrefab{ 1.f, 1.f, 1.f, XMFLOAT4(Colors::Black) });
+	const auto BombItemMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	BombItemMaterial->SetDiffuseTexture(L"Textures/BombItem_Diffuse.png");
+
+	const auto pObject = m_pGameObject->AddChild(new GameObject);
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Item.ovm"));
+	pModel->SetMaterial(BombItemMaterial);
+
+	pObject->GetTransform()->Rotate(90.f, 0.f, 0.f);
+	pObject->GetTransform()->Translate(0.f, 0.5f, -0.5f);
 }
 
 void ExtraBomb::CollectPowerUp(PlayerPawn* pPlayer)

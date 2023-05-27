@@ -15,5 +15,4 @@ public:
 	virtual void CollectPowerUp(PlayerPawn* /*pPlayer*/) {}
 
 protected:
-	//void Initialize(const SceneContext& sceneContext) override {}
 };

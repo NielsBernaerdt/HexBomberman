@@ -73,4 +73,9 @@ private:
 	int m_BlastRange{ 1 };
 	int m_NrBombs{ 1 };
 	int m_NrBombsInPlay{ 0 };
+
+	//Animations
+	ModelAnimator* pAnimator{};
+	float m_AnimationSpeed{ 1.f };
+	int m_CurrentAnimationIdx{ 0 };
 };

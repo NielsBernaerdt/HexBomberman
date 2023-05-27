@@ -30,4 +30,6 @@ private:
 	const int m_BlastRange{ 0 };
 	float m_AccTime{};
 	void EndExplosion() const;
+
+	bool m_HasExploded{ false };
 };

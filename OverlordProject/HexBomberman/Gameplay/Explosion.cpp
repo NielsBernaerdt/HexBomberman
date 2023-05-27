@@ -22,7 +22,7 @@ void Explosion::Initialize(const SceneContext&)
 
 	//TEMP GLOBAL POSE
 	const PxTransform localPose{ GetTransform()->GetWorldPosition().x
-	,GetTransform()->GetWorldPosition().y + 0.5f
+	,GetTransform()->GetWorldPosition().y
 	,GetTransform()->GetWorldPosition().z };
 
 	//Explosion Actor

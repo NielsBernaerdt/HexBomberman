@@ -2,7 +2,8 @@
 #include "PlayerPawn.h"
 
 #include "HexBomberman/HexGrid/HexCell.h"
-#include "HexBomberman/PowerUps/BasePowerUp.h"
+#include "Materials/DiffuseMaterial_Skinned.h"
+#include "Materials/Shadow/DiffuseMaterial_Shadow_Skinned.h"
 
 PlayerPawn::PlayerPawn(const CharacterDesc& characterDesc) :
 	m_CharacterDesc{ characterDesc },
@@ -14,6 +15,22 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 {
 	//Controller
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
+
+	//Animations
+	const auto pPeasantMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+	pPeasantMaterial->SetDiffuseTexture(L"Textures/Boss_Diffuse.png");
+
+	const auto pObject = AddChild(new GameObject);
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Boss.ovm"));
+	pModel->SetMaterial(pPeasantMaterial);
+
+	pObject->GetTransform()->Scale(0.012f);
+	pObject->GetTransform()->Translate(0.f, -1.f, 0.f);
+
+	pAnimator = pModel->GetAnimator();
+	pAnimator->SetAnimation(0);
+	pAnimator->SetAnimationSpeed(m_AnimationSpeed);
+	pAnimator->Play();
 }
 
 void PlayerPawn::SetCurrentTile(HexCell* pHexCell)
@@ -110,6 +127,13 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 		{
 			m_MoveSpeed = m_CharacterDesc.maxMoveSpeed;
 		}
+
+		//Update Animation
+		if (m_CurrentAnimationIdx != 1)
+		{
+			pAnimator->SetAnimation(1); // 1 = running
+			m_CurrentAnimationIdx = 1;
+		}
 	}
 	else
 	{
@@ -117,6 +141,13 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 		if (m_MoveSpeed < 0)
 		{
 			m_MoveSpeed = 0;
+		}
+
+		//Update Animation
+		if (m_CurrentAnimationIdx != 0)
+		{
+			pAnimator->SetAnimation(0); // 0 = idle
+			m_CurrentAnimationIdx = 0;
 		}
 	}
 
@@ -132,10 +163,16 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	XMFLOAT3 displacement{};
 	XMStoreFloat3(&displacement, totalVelocity * sceneContext.pGameTime->GetElapsed());
 	m_pControllerComponent->Move(displacement);
+
+	//************
+	//ORIENTATION OF MODELCOMPONENT OBJECT
+	auto angleFromDisplacement{ -atan2(displacement.z, displacement.x) - XM_PIDIV2 };
+	GetChild<GameObject>()->GetTransform()->Rotate(0, angleFromDisplacement, 0, false);
 }
 
 void PlayerPawn::DrawImGui()
 {
+	//CharacterComponent
 	if (ImGui::CollapsingHeader("Character"))
 	{
 		ImGui::Text(std::format("Move Speed: {:0.1f} m/s", m_MoveSpeed).c_str());
