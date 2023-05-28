@@ -14,15 +14,11 @@ void HexCell::Initialize(const SceneContext&)
 	const auto pMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 
 	//Ground Tile
-	m_pGroundTile = m_pGameObject->AddChild(new SpherePrefab{ 1, 6, XMFLOAT4(Colors::Green) });
-	m_pGroundTile->GetTransform()->Scale(1.f, 0.01f, 1.f);
-	m_pGroundTile->GetTransform()->Rotate(0.f, 30.f, 0.f, true);
+	AddHexComp();
 	
 	//Actor
 	const auto pRigidBody = m_pGameObject->AddComponent(new RigidBodyComponent(true));
 	pRigidBody->AddCollider(PxSphereGeometry{ 1.f }, *pMaterial, true);
-
-
 }
 
 void HexCell::Update(const SceneContext&)
@@ -120,4 +116,49 @@ std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 	}
 
 	return blastTiles;
+}
+
+void HexCell::AddHexComp()
+{
+	//Create Cube
+	const auto pMesh = new MeshDrawComponent(12);
+
+	//RIGHTUNDER -> RIGHTUPPER
+	pMesh->AddTriangle(
+		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, sin(-XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
+	);
+	//RIGHTUPPER -> UPPER
+	pMesh->AddTriangle(
+		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI/2), 0, sin(XM_PI/2)), XMFLOAT3(0, 0, 1), currentCellColor)
+	);
+	//UPPER -> LEFTUPPER
+	pMesh->AddTriangle(
+		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI/2), 0, sin(XM_PI/2)), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(-cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
+	);
+	//LEFTUPPER -> LEFTUNDER
+	pMesh->AddTriangle(
+		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(-cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(-cos(XM_PI/6), 0, -sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
+	);
+	//LEFTUPPER -> UNDER
+	pMesh->AddTriangle(
+		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(-cos(XM_PI / 6), 0, -sin(XM_PI / 6)), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI / 2), 0, -sin(XM_PI / 2)), XMFLOAT3(0, 0, 1), currentCellColor)
+	);
+	//UNDER -> RIGHTUNDER
+	pMesh->AddTriangle(
+		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI / 2), 0, -sin(XM_PI / 2)), XMFLOAT3(0, 0, 1), currentCellColor),
+		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, -sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
+	);
+
+	m_pGameObject->AddComponent(pMesh);
 }

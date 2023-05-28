@@ -21,16 +21,16 @@ void HexBomberman::Initialize()
 
 	//Ground Object
 	//*********
-	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-	pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
-	//***********
-	const auto pGroundObj = new GameObject();
-	const auto pGroundModel = new ModelComponent(L"Meshes/UnitPlane.ovm");
-	pGroundModel->SetMaterial(pGroundMaterial);
-	//***********
-	pGroundObj->AddComponent(pGroundModel);
-	pGroundObj->GetTransform()->Scale(10.0f, 10.0f, 10.0f);
-	AddChild(pGroundObj);
+	//const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	//pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
+	////***********
+	//const auto pGroundObj = new GameObject();
+	//const auto pGroundModel = new ModelComponent(L"Meshes/UnitPlane.ovm");
+	//pGroundModel->SetMaterial(pGroundMaterial);
+	////***********
+	//pGroundObj->AddComponent(pGroundModel);
+	//pGroundObj->GetTransform()->Scale(10.0f, 10.0f, 10.0f);
+	//AddChild(pGroundObj);
 
 	//Hexagonal Grid
 	m_pHexGrid = AddChild(new HexGrid{});
