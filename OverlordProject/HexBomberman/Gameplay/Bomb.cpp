@@ -23,11 +23,38 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bomb.ovm"));
 	pModel->SetMaterial(pBombMaterial);
-	pObject->GetTransform()->Rotate(123.f, 90, 90.f);
+
+	pObject->GetTransform()->Rotate(90.f, 0.f, 0.f);
+	pObject->GetTransform()->Translate(0.f, -0.5f, 0.f);
+
+
+	//Particle System
+	ParticleEmitterSettings settings{};
+	settings.velocity = { 0.f,6.f,0.f };
+	settings.minSize = 0.2f;
+	settings.maxSize = 0.6f;
+	settings.minEnergy = 0.f;
+	settings.maxEnergy = 0.f;
+	settings.minScale = 3.5f;
+	settings.maxScale = 5.5f;
+	settings.minEmitterRadius = .0f;
+	settings.maxEmitterRadius = .1f;
+	settings.color = { 1.f,1.f,1.f, 1.f };
+
+	pParticle = m_pGameObject->AddChild(new GameObject);
+	pParticle->AddComponent(new ParticleEmitterComponent(L"Textures/Fire.png", settings, 200));
 }
 
 void Bomb::Update(const SceneContext& sceneContext)
 {
+	//////////
+	auto pos = GetTransform()->GetWorldPosition();
+	pos.y += 0.7f;
+	pParticle->GetTransform()->Translate(pos);
+	/// <summary>
+	/// ///////
+	/// </summary>
+	/// <param name="sceneContext"></param>
 	m_AccTime += sceneContext.pGameTime->GetElapsed();
 	if (m_HasExploded == false)
 	{

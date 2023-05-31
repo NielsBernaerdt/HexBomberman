@@ -32,4 +32,6 @@ private:
 	void EndExplosion() const;
 
 	bool m_HasExploded{ false };
+
+	GameObject* pParticle{ nullptr };
 };
