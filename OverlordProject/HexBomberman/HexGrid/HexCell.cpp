@@ -18,7 +18,7 @@ void HexCell::Initialize(const SceneContext&)
 	
 	//Actor
 	const auto pRigidBody = m_pGameObject->AddComponent(new RigidBodyComponent(true));
-	pRigidBody->AddCollider(PxSphereGeometry{ 1.f }, *pMaterial, true);
+	pRigidBody->AddCollider(PxSphereGeometry{ 0.85f }, *pMaterial, true);
 }
 
 void HexCell::Update(const SceneContext&)
@@ -56,7 +56,6 @@ void HexCell::PlaceBomb(PlayerPawn* pPlayer, int blastRange)
 	const auto bombObject = m_pGameObject->AddChild(new GameObject{});
 	bombObject->AddComponent(new Bomb{this, pPlayer, blastRange});
 	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
-	//bombObject->GetTransform()->Scale(1.1f, 1.1f, 1.1f);
 }
 
 void HexCell::DestroyCrate()
@@ -122,6 +121,18 @@ void HexCell::AddHexComp()
 {
 	//Create Cube
 	const auto pMesh = new MeshDrawComponent(12);
+	XMFLOAT4 currentCellColor{ Colors::DarkGreen };
+
+	if (m_IsDarkGreen == true)
+	{
+		m_IsDarkGreen = false;
+		currentCellColor = XMFLOAT4{ Colors::LightGreen };
+	}
+	else
+	{
+		m_IsDarkGreen = true;
+		currentCellColor = XMFLOAT4{ Colors::DarkGreen };
+	}
 
 	//RIGHTUNDER -> RIGHTUPPER
 	pMesh->AddTriangle(

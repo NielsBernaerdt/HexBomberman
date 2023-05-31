@@ -49,5 +49,5 @@ private:
 	BasePowerUp* m_pPowerUp{ nullptr };
 
 	void AddHexComp();
-	XMFLOAT4 currentCellColor{ Colors::Green };
+	inline static bool m_IsDarkGreen{ false };
 };

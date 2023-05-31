@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "HexBomberman.h"
 
+#include "HexBomberman/Gameplay/Bomb.h"
 #include "HexBomberman/HexGrid/HexGrid.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
@@ -9,6 +10,10 @@
 void HexBomberman::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
+	m_SceneContext.settings.drawPhysXDebug = false;
+	m_SceneContext.settings.drawGrid = false;
+
+	m_SceneContext.useDeferredRendering = true;
 
 	//Lights
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });

@@ -20,6 +20,4 @@ protected:
 
 private:
 	const float m_SpawnChance{ 0.25f };
-
-	void AddCubeComp();
 };

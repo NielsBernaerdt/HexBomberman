@@ -23,9 +23,7 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bomb.ovm"));
 	pModel->SetMaterial(pBombMaterial);
-
-	pObject->GetTransform()->Rotate(90.f, 0.f, 0.f);
-	pObject->GetTransform()->Translate(0.f, -0.5f, 0.f);
+	pObject->GetTransform()->Rotate(123.f, 90, 90.f);
 }
 
 void Bomb::Update(const SceneContext& sceneContext)

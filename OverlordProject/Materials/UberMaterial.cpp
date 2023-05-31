@@ -3,7 +3,6 @@
 
 UberMaterial::~UberMaterial()
 {
-	//TODO check if responsibility of ALL member variables are for this class (eg: Texture Data is maybe handled by gpu?)
 	//Diffuse
 	delete m_pUseTextureDiffuse;
 	delete m_pColorDiffuse;

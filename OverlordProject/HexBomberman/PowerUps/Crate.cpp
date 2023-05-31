@@ -5,6 +5,8 @@
 #include "IncreaseExplosion.h"
 #include "Prefabs/CubePrefab.h"
 #include "HexBomberman/HexGrid/HexCell.h"
+#include "Materials/BasicMaterial_Deferred.h"
+#include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
 void Crate::Initialize(const SceneContext&)
 {
@@ -12,7 +14,21 @@ void Crate::Initialize(const SceneContext&)
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 
 	//Cube Object
-	AddCubeComp();
+	const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
+	pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
+	pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
+	//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	//pCrateMaterial->SetDiffuseTexture(L"Textures/Crate_Diffuse.png");
+	const auto pObject = m_pGameObject->AddChild(new GameObject);
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Crate.ovm"));
+	pModel->SetMaterial(pCrateMaterial);
+
+	//SCALE
+	//pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
+
+	//RANDOM ROTATION
+	const float randomRotationValue{ static_cast<float>(std::rand() % 360) };
+	pObject->GetTransform()->Rotate(0.f, randomRotationValue, 0.f);
 
 	//TEMP GLOBAL POSE
 	const PxTransform localPose{ GetTransform()->GetWorldPosition().x
@@ -47,65 +63,4 @@ void Crate::SpawnPowerUp(HexCell* pHexCellParent) const
             break;
         }
 	}
-}
-
-void Crate::AddCubeComp()
-{
-	//Create Cube
-	const auto pMesh = new MeshDrawComponent(12);
-
-	const float halfWidth = 0.45f;
-	const float halfHeight = 0.45f;
-	const float halfDepth = 0.45f;
-	const XMFLOAT4 color{ Colors::Gray };
-
-	//FRONT
-	pMesh->AddQuad(
-		VertexPosNormCol(XMFLOAT3(-halfWidth, halfHeight, -halfDepth), XMFLOAT3(0, 0, -1), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, halfHeight, -halfDepth), XMFLOAT3(0, 0, -1), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, -halfHeight, -halfDepth), XMFLOAT3(0, 0, -1), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, -halfHeight, -halfDepth), XMFLOAT3(0, 0, -1), color)
-	);
-
-	//BACK
-	pMesh->AddQuad(
-		VertexPosNormCol(XMFLOAT3(halfWidth, halfHeight, halfDepth), XMFLOAT3(0, 0, 1), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, halfHeight, halfDepth), XMFLOAT3(0, 0, 1), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, -halfHeight, halfDepth), XMFLOAT3(0, 0, 1), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, -halfHeight, halfDepth), XMFLOAT3(0, 0, 1), color)
-	);
-
-	//LEFT
-	pMesh->AddQuad(
-		VertexPosNormCol(XMFLOAT3(-halfWidth, halfHeight, halfDepth), XMFLOAT3(-1, 0, 0), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, halfHeight, -halfDepth), XMFLOAT3(-1, 0, 0), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, -halfHeight, -halfDepth), XMFLOAT3(-1, 0, 0), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, -halfHeight, halfDepth), XMFLOAT3(-1, 0, 0), color)
-	);
-
-	//RIGHT
-	pMesh->AddQuad(
-		VertexPosNormCol(XMFLOAT3(halfWidth, halfHeight, -halfDepth), XMFLOAT3(1, 0, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, halfHeight, halfDepth), XMFLOAT3(1, 0, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, -halfHeight, halfDepth), XMFLOAT3(1, 0, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, -halfHeight, -halfDepth), XMFLOAT3(1, 0, 0), color)
-	);
-
-	//TOP
-	pMesh->AddQuad(
-		VertexPosNormCol(XMFLOAT3(-halfWidth, halfHeight, halfDepth), XMFLOAT3(0, 1, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, halfHeight, halfDepth), XMFLOAT3(0, 1, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, halfHeight, -halfDepth), XMFLOAT3(0, 1, 0), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, halfHeight, -halfDepth), XMFLOAT3(0, 1, 0), color)
-	);
-
-	//BOTTOM
-	pMesh->AddQuad(
-		VertexPosNormCol(XMFLOAT3(-halfWidth, -halfHeight, -halfDepth), XMFLOAT3(0, -1, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, -halfHeight, -halfDepth), XMFLOAT3(0, -1, 0), color),
-		VertexPosNormCol(XMFLOAT3(halfWidth, -halfHeight, halfDepth), XMFLOAT3(0, -1, 0), color),
-		VertexPosNormCol(XMFLOAT3(-halfWidth, -halfHeight, halfDepth), XMFLOAT3(0, -1, 0), color)
-	);
-
-	m_pGameObject->AddComponent(pMesh);
 }
