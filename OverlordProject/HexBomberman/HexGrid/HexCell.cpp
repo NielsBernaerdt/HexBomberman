@@ -121,18 +121,7 @@ void HexCell::AddHexComp()
 {
 	//Create Cube
 	const auto pMesh = new MeshDrawComponent(12);
-	XMFLOAT4 currentCellColor{ Colors::DarkGreen };
-
-	if (m_IsDarkGreen == true)
-	{
-		m_IsDarkGreen = false;
-		currentCellColor = XMFLOAT4{ Colors::LightGreen };
-	}
-	else
-	{
-		m_IsDarkGreen = true;
-		currentCellColor = XMFLOAT4{ Colors::DarkGreen };
-	}
+	XMFLOAT4 currentCellColor{ Colors::LightGreen };
 
 	//RIGHTUNDER -> RIGHTUPPER
 	pMesh->AddTriangle(

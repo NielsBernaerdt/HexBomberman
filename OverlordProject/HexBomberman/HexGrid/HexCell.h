@@ -49,5 +49,4 @@ private:
 	BasePowerUp* m_pPowerUp{ nullptr };
 
 	void AddHexComp();
-	inline static bool m_IsDarkGreen{ false };
 };

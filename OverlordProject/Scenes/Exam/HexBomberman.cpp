@@ -5,6 +5,7 @@
 #include "HexBomberman/HexGrid/HexGrid.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
+#include "Materials/Post/PostBloom.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
 void HexBomberman::Initialize()
@@ -16,7 +17,30 @@ void HexBomberman::Initialize()
 	m_SceneContext.useDeferredRendering = true;
 
 	//Lights
+
+	//Directional
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
+
+	//Spot Light
+	Light light = {};
+	light.isEnabled = true;
+	light.position = { 1.f,3.f,1.f,1.0f };
+	//light.color = { 0.f,1.f,0.f,1.f };
+	light.color = { 1.f,1.f,1.f,1.f };
+	light.intensity = 1.f;
+	light.range = 5.0f;
+	light.type = LightType::Point;
+	m_SceneContext.pLights->AddLight(light);
+
+	////Point Light
+	//light = {};
+	//light.isEnabled = true;
+	//light.position = { 0.f,10.f,0.f,1.0f };
+	//light.color = { 0.f,1.f,0.f,1.f };
+	//light.intensity = 1.f;
+	//light.range = 30.0f;
+	//light.type = LightType::Point;
+	//m_SceneContext.pLights->AddLight(light);
 
 	//Materials
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
@@ -26,16 +50,15 @@ void HexBomberman::Initialize()
 
 	//Ground Object
 	//*********
-	//const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-	//pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
-	////***********
-	//const auto pGroundObj = new GameObject();
-	//const auto pGroundModel = new ModelComponent(L"Meshes/UnitPlane.ovm");
-	//pGroundModel->SetMaterial(pGroundMaterial);
-	////***********
-	//pGroundObj->AddComponent(pGroundModel);
-	//pGroundObj->GetTransform()->Scale(10.0f, 10.0f, 10.0f);
-	//AddChild(pGroundObj);
+	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
+	//***********
+	const auto pGroundObj = AddChild(new GameObject());
+	const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/UnitPlane.ovm"));
+	pGroundModel->SetMaterial(pGroundMaterial);
+	pGroundObj->GetTransform()->Scale(10.0f, 10.0f, 10.0f);
+	pGroundObj->GetTransform()->Translate(0.f, -0.01f, 0.f);
+	//***********
 
 	//Hexagonal Grid
 	m_pHexGrid = AddChild(new HexGrid{});
@@ -80,9 +103,39 @@ void HexBomberman::Initialize()
 	{
 		cell->GetGameObject()->SetOnTriggerCallBack(callback);
 	}
+	
+	//Post Processing Stack
+	//=====================
+
+	//Particle System to help post processing work (TODO)
+	ParticleEmitterSettings settings{};
+	settings.velocity = { 0.f,6.f,0.f };
+	settings.minSize = 0.2f;
+	settings.maxSize = 0.6f;
+	settings.minEnergy = 0.f;
+	settings.maxEnergy = 0.f;
+	settings.minScale = 3.5f;
+	settings.maxScale = 5.5f;
+	settings.minEmitterRadius = .0f;
+	settings.maxEmitterRadius = .1f;
+	settings.color = { 1.f,1.f,1.f, 1.f };
+
+	auto pParticle = AddChild(new GameObject);
+	pParticle->AddComponent(new ParticleEmitterComponent(L"Textures/Fire.png", settings, 200));
+	pParticle->GetTransform()->Translate(0.f, -1.f, 1.f);
+
+	m_pPostBloom = MaterialManager::Get()->CreateMaterial<PostBloom>();
+	AddPostProcessingEffect(m_pPostBloom);
+	m_pPostBloom->SetIsEnabled(false);
 }
 
 void HexBomberman::OnGUI()
 {
+	DeferredRenderer::Get()->DrawImGui();
+	//
+	bool isEnabled = m_pPostBloom->IsEnabled();
+	ImGui::Checkbox("Bloom PP", &isEnabled);
+	m_pPostBloom->SetIsEnabled(isEnabled);
+	//
 	m_pCharacter->DrawImGui();
 }

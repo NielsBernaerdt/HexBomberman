@@ -1,5 +1,6 @@
 #pragma once
 
+class PostBloom;
 class HexGrid;
 class PlayerPawn;
 
@@ -35,4 +36,6 @@ private:
 	};
 
 	PlayerPawn* m_pCharacter{};
+
+	PostBloom* m_pPostBloom{};
 };

@@ -17,6 +17,7 @@ void Crate::Initialize(const SceneContext&)
 	const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
 	pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
 	pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
+	pCrateMaterial->SetSpecularMap(L"Textures/Crate_Specular.png");
 	//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
 	//pCrateMaterial->SetDiffuseTexture(L"Textures/Crate_Diffuse.png");
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
@@ -24,7 +25,7 @@ void Crate::Initialize(const SceneContext&)
 	pModel->SetMaterial(pCrateMaterial);
 
 	//SCALE
-	//pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
+	pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
 
 	//RANDOM ROTATION
 	const float randomRotationValue{ static_cast<float>(std::rand() % 360) };
