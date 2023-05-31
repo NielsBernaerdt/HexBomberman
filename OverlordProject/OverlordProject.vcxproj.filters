@@ -49,6 +49,8 @@
     <ClCompile Include="Materials\BasicMaterial_Deferred.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\IncreaseMovementSpeed.cpp" />
     <ClCompile Include="HexBomberman\PowerUps\BasePowerUp.cpp" />
+    <ClCompile Include="Materials\Post\PostBloom.cpp" />
+    <ClCompile Include="Scenes\Exam\MainMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h" />
@@ -99,5 +101,7 @@
     <ClInclude Include="Materials\BasicMaterial_Deferred.h" />
     <ClInclude Include="HexBomberman\PowerUps\IncreaseMovementSpeed.h" />
     <ClInclude Include="HexBomberman\PowerUps\BasePowerUp.h" />
+    <ClInclude Include="Materials\Post\PostBloom.h" />
+    <ClInclude Include="Scenes\Exam\MainMenu.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MainGame.h"
 
+#include "Scenes/Exam/MainMenu.h"
+
 /*LAB Content*/
 //#define W3
 //#define W4
@@ -177,6 +179,7 @@ void MainGame::Initialize()
 #endif
 
 #ifdef EXAM
+	SceneManager::Get()->AddGameScene(new MainMenu());
 	SceneManager::Get()->AddGameScene(new HexBomberman());
 #endif
 }
