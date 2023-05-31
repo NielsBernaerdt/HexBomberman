@@ -15,8 +15,8 @@ protected:
 	void Update() override;
 
 private:
-	SpriteComponent* m_pStart;
-	SpriteComponent* m_pExit;
+	SpriteComponent* m_pStart{ nullptr };
+	SpriteComponent* m_pExit{ nullptr };
 
 	bool IsOverlapping(SpriteComponent* pSpriteComponent) const;
 };

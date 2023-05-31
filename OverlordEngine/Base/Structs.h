@@ -19,6 +19,8 @@ struct SceneSettings
 	bool showInfoOverlay{true};
 	bool enableOnGUI{ false };
 
+	mutable bool isGamePaused{ false };
+
 	bool drawPhysXDebug{true};
 	bool drawGrid{true};
 	bool drawUserDebug{ true };

@@ -70,6 +70,9 @@ void PlayerPawn::PlaceBomb()
 
 void PlayerPawn::Update(const SceneContext& sceneContext)
 {
+	if (sceneContext.settings.isGamePaused)
+		return;
+
 	constexpr float epsilon{ 0.01f }; //Constant that can be used to compare if a float is near zero
 
 	//***************
@@ -97,6 +100,11 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	if(sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_PlaceBomb))
 	{
 		PlaceBomb();
+	}
+
+	if (sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_PauseGame))
+	{
+		sceneContext.settings.isGamePaused = !sceneContext.settings.isGamePaused;
 	}
 
 	//************************

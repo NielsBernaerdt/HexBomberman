@@ -70,6 +70,7 @@ void HexBomberman::Initialize()
 	characterDesc.actionId_MoveLeft = CharacterMoveLeft;
 	characterDesc.actionId_MoveRight = CharacterMoveRight;
 	characterDesc.actionId_PlaceBomb = CharacterPlaceBomb;
+	characterDesc.actionId_PauseGame = PauseGame;
 
 	m_pCharacter = AddChild(new PlayerPawn(characterDesc));
 	m_pCharacter->GetTransform()->Translate(-20.f, 1.f, 0.f);
@@ -88,6 +89,9 @@ void HexBomberman::Initialize()
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
 	inputAction = InputAction(CharacterPlaceBomb, InputState::released, VK_SPACE);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+
+	inputAction = InputAction(PauseGame, InputState::released, 'P');
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
 	//Set Trigger Callback functions
@@ -127,6 +131,87 @@ void HexBomberman::Initialize()
 	m_pPostBloom = MaterialManager::Get()->CreateMaterial<PostBloom>();
 	AddPostProcessingEffect(m_pPostBloom);
 	m_pPostBloom->SetIsEnabled(false);
+
+
+	//Pause Menu
+	const auto pBackground = new GameObject{};
+	m_pBackground = pBackground->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+
+	const auto pResumeButton = new GameObject{};
+	m_pResume = pResumeButton->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pResume->GetTransform()->Scale(0.5f, 0.12f, 1.f);
+	m_pResume->GetTransform()->Translate(300.f, 100.f, 0.f);
+
+	const auto pRestartButton = new GameObject{};
+	m_pRestart = pRestartButton->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pRestart->GetTransform()->Scale(0.5f, 0.12f, 1.f);
+	m_pRestart->GetTransform()->Translate(300.f, 300.f, 0.f);
+
+	const auto pExitButton = new GameObject{};
+	m_pExit = pExitButton->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pExit->GetTransform()->Scale(0.5f, 0.12f, 1.f);
+	m_pExit->GetTransform()->Translate(300.f, 500.f, 0.f);
+}
+
+void HexBomberman::Update()
+{
+	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)
+	{
+		TogglePause();
+	}
+	m_PreviousPauseState = m_SceneContext.settings.isGamePaused;
+
+	if(m_SceneContext.settings.isGamePaused == true)
+	{
+		if (InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON))
+		{
+			if (IsOverlapping(m_pResume))
+			{
+				m_SceneContext.settings.isGamePaused = !m_SceneContext.settings.isGamePaused;
+			}
+			else if (IsOverlapping(m_pRestart))
+			{
+				PostQuitMessage(0);
+			}
+			else if (IsOverlapping(m_pExit))
+			{
+				PostQuitMessage(0);
+			}
+		}
+	}
+}
+
+void HexBomberman::TogglePause()
+{
+	if(m_SceneContext.settings.isGamePaused)
+	{
+		AddChild(m_pBackground->GetGameObject());
+		AddChild(m_pResume->GetGameObject());
+		AddChild(m_pRestart->GetGameObject());
+		AddChild(m_pExit->GetGameObject());
+	}
+	else
+	{
+		RemoveChild(m_pBackground->GetGameObject());
+		RemoveChild(m_pResume->GetGameObject());
+		RemoveChild(m_pRestart->GetGameObject());
+		RemoveChild(m_pExit->GetGameObject());
+	}
+}
+
+
+bool HexBomberman::IsOverlapping(SpriteComponent* pSpriteComponent) const
+{
+	const auto posMouse{ m_SceneContext.pInput->GetMousePosition() };
+	const auto spritePos{ pSpriteComponent->GetTransform()->GetWorldPosition() };
+	auto spriteDimensions{ pSpriteComponent->GetTextureDimensions() };
+	spriteDimensions.x *= pSpriteComponent->GetTransform()->GetScale().x;
+	spriteDimensions.y *= pSpriteComponent->GetTransform()->GetScale().y;
+
+	return (posMouse.x >= spritePos.x &&
+		posMouse.x <= spritePos.x + spriteDimensions.x &&
+		posMouse.y >= spritePos.y &&
+		posMouse.y <= spritePos.y + spriteDimensions.y);
 }
 
 void HexBomberman::OnGUI()
