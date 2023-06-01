@@ -57,6 +57,9 @@ void HexBomberman::Initialize()
 	//Materials
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 
+	//Sprite
+	m_pFont = ContentManager::Load<SpriteFont>(L"SpriteFonts/Consolas_32.fnt");
+
 	//Ground Actor
 	GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
 
@@ -163,14 +166,26 @@ void HexBomberman::Initialize()
 
 	//HUD
 	const auto pHUD = AddChild(new GameObject);
-
+	//Player One
 	const auto pPlayerOne = pHUD->AddChild(new GameObject);
-	const auto pBombSprite = pPlayerOne->AddComponent(new SpriteComponent(L"Textures/Background.png"));
-	m_pFont = ContentManager::Load<SpriteFont>(L"SpriteFonts/Consolas_32.fnt");
+	pPlayerOne->GetTransform()->Translate(30.f, 100.f, 0.f);
+
+	const auto pPortrait = pPlayerOne->AddChild(new GameObject);
+	/*const auto pPortraitSprite = */pPortrait->AddComponent(new SpriteComponent(L"Textures/UI_White.png"));
+	pPortrait->GetTransform()->Translate(0.f, 80.f, 0.f);
+	pPortrait->GetTransform()->Scale(0.8f, 0.8f, 1.f);
 
 
-	pBombSprite->GetTransform()->Scale(0.05f, 0.1f, 1.f);
-	pBombSprite->GetTransform()->Translate(30.f, 100.f, 0.f);
+	const auto pBomb = pPlayerOne->AddChild(new GameObject);
+	/*const auto pBombSprite = */pBomb->AddComponent(new SpriteComponent(L"Textures/UI_BombIcon.png"));
+	pBomb->GetTransform()->Translate(140.f, 130.f, 0.f);
+	//pBomb->GetTransform()->Scale(0.04f, 0.07f, 1.f);
+
+	
+
+
+
+	//pBombSprite->GetTransform()->Translate(30.f, 100.f, 0.f);
 
 	//const auto pPlayerTwo = pHUD->AddChild(new GameObject);
 	//const auto pSpritePlayerTwo = pPlayerTwo->AddComponent(new SpriteComponent(L"Textures/Background.png"));
@@ -184,7 +199,8 @@ void HexBomberman::Update()
 	m_Text = std::to_string((m_pCharacter->GetNrBombs() - m_pCharacter->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacter->GetNrBombs());
 	TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(m_Text), m_TextPosition, m_TextColor);
 	//
-
+		//Player One Name
+	TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode("Player One"), { 160.f, 190.f }, XMFLOAT4(Colors::White));
 
 
 	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)

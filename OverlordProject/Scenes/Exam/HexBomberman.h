@@ -55,6 +55,6 @@ private:
 	SpriteFont* m_pFont{};
 
 	std::string m_Text{ "Hello World!" };
-	XMFLOAT2 m_TextPosition{ 106.f, 120.f };
+	XMFLOAT2 m_TextPosition{ 260.f, 260.f };
 	XMFLOAT4 m_TextColor{ 1.f,1.f,1.f,1.f };
 };
