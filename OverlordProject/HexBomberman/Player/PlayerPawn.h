@@ -52,6 +52,9 @@ public:
 	void BombExploded();
 	void DrawImGui();
 
+	int GetNrBombs() const { return m_NrBombs; }
+	int GetNrBombsInPlay() const { return m_NrBombsInPlay; }
+
 protected:
 	void Initialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;

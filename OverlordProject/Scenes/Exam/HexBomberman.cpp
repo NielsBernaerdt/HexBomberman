@@ -8,6 +8,14 @@
 #include "Materials/Post/PostBloom.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
+HexBomberman::~HexBomberman()
+{
+	if(m_SceneContext.settings.isGamePaused == false)
+	{
+		delete m_pPauseMenu->GetGameObject();
+	}
+}
+
 void HexBomberman::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
@@ -15,6 +23,10 @@ void HexBomberman::Initialize()
 	m_SceneContext.settings.drawGrid = false;
 
 	m_SceneContext.useDeferredRendering = true;
+
+	//Camera
+	m_SceneContext.pCamera->GetTransform()->Translate(6.165973f, 17.315273f, -4.472385f);
+	dynamic_cast<FreeCamera*>(m_SceneContext.pCamera->GetGameObject())->SetRotation(60.f, 0.f);
 
 	//Lights
 
@@ -135,26 +147,46 @@ void HexBomberman::Initialize()
 
 	//Pause Menu
 	const auto pBackground = new GameObject{};
-	m_pBackground = pBackground->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pPauseMenu = pBackground->AddComponent(new SpriteComponent(L"Textures/Background.png"));
 
-	const auto pResumeButton = new GameObject{};
-	m_pResume = pResumeButton->AddComponent(new SpriteComponent(L"Textures/Background.png"));
-	m_pResume->GetTransform()->Scale(0.5f, 0.12f, 1.f);
-	m_pResume->GetTransform()->Translate(300.f, 100.f, 0.f);
+	const auto pResumeButton = pBackground->AddChild(new GameObject);
+	m_pResume = pResumeButton->AddComponent(new SpriteComponent(L"Textures/Button_Resume.png"));
+	m_pResume->GetTransform()->Translate(240.f, 700.f, 0.f);
 
-	const auto pRestartButton = new GameObject{};
-	m_pRestart = pRestartButton->AddComponent(new SpriteComponent(L"Textures/Background.png"));
-	m_pRestart->GetTransform()->Scale(0.5f, 0.12f, 1.f);
-	m_pRestart->GetTransform()->Translate(300.f, 300.f, 0.f);
+	const auto pRestartButton = pBackground->AddChild(new GameObject);
+	m_pRestart = pRestartButton->AddComponent(new SpriteComponent(L"Textures/Button_Restart.png"));
+	m_pRestart->GetTransform()->Translate(730.f, 700.f, 0.f);
 
-	const auto pExitButton = new GameObject{};
-	m_pExit = pExitButton->AddComponent(new SpriteComponent(L"Textures/Background.png"));
-	m_pExit->GetTransform()->Scale(0.5f, 0.12f, 1.f);
-	m_pExit->GetTransform()->Translate(300.f, 500.f, 0.f);
+	const auto pExitButton = pBackground->AddChild(new GameObject);
+	m_pExit = pExitButton->AddComponent(new SpriteComponent(L"Textures/Button_Exit.png"));
+	m_pExit->GetTransform()->Translate(1230.f, 700.f, 0.f);
+
+	//HUD
+	const auto pHUD = AddChild(new GameObject);
+
+	const auto pPlayerOne = pHUD->AddChild(new GameObject);
+	const auto pBombSprite = pPlayerOne->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pFont = ContentManager::Load<SpriteFont>(L"SpriteFonts/Consolas_32.fnt");
+
+
+	pBombSprite->GetTransform()->Scale(0.05f, 0.1f, 1.f);
+	pBombSprite->GetTransform()->Translate(30.f, 100.f, 0.f);
+
+	//const auto pPlayerTwo = pHUD->AddChild(new GameObject);
+	//const auto pSpritePlayerTwo = pPlayerTwo->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	//pSpritePlayerTwo->GetTransform()->Scale(0.2f, 0.3f, 1.f);
+	//pSpritePlayerTwo->GetTransform()->Translate(0.f, 500.f, 0.f);
 }
 
 void HexBomberman::Update()
 {
+	//
+	m_Text = std::to_string((m_pCharacter->GetNrBombs() - m_pCharacter->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacter->GetNrBombs());
+	TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(m_Text), m_TextPosition, m_TextColor);
+	//
+
+
+
 	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)
 	{
 		TogglePause();
@@ -185,17 +217,11 @@ void HexBomberman::TogglePause()
 {
 	if(m_SceneContext.settings.isGamePaused)
 	{
-		AddChild(m_pBackground->GetGameObject());
-		AddChild(m_pResume->GetGameObject());
-		AddChild(m_pRestart->GetGameObject());
-		AddChild(m_pExit->GetGameObject());
+		AddChild(m_pPauseMenu->GetGameObject());
 	}
 	else
 	{
-		RemoveChild(m_pBackground->GetGameObject());
-		RemoveChild(m_pResume->GetGameObject());
-		RemoveChild(m_pRestart->GetGameObject());
-		RemoveChild(m_pExit->GetGameObject());
+		RemoveChild(m_pPauseMenu->GetGameObject());
 	}
 }
 
@@ -216,6 +242,16 @@ bool HexBomberman::IsOverlapping(SpriteComponent* pSpriteComponent) const
 
 void HexBomberman::OnGUI()
 {
+	char buffer[256]{};
+	m_Text.copy(&buffer[0], 256);
+	if (ImGui::InputText("Text", &buffer[0], 256))
+	{
+		m_Text = std::string(buffer);
+	}
+
+	ImGui::SliderFloat2("Position", &m_TextPosition.x, 0, m_SceneContext.windowWidth);
+	ImGui::ColorEdit4("Color", &m_TextColor.x, ImGuiColorEditFlags_NoInputs);
+	//
 	DeferredRenderer::Get()->DrawImGui();
 	//
 	bool isEnabled = m_pPostBloom->IsEnabled();

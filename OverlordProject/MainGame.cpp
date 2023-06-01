@@ -97,8 +97,9 @@ void MainGame::OnGamePreparing(GameContext& gameContext)
 	UNREFERENCED_PARAMETER(gameContext);
 
 	//Here you can change some game settings before engine initialize
-	//gameContext.windowWidth=... (default is 1280)
-	//gameContext.windowHeight=... (default is 720)
+	gameContext.windowWidth = 1920;
+	gameContext.windowHeight = 1080;
+	srand(static_cast<unsigned int>(time(nullptr)));
 
 #ifdef MILESTONE_1
 	gameContext.windowTitle = L"GP2 - Milestone 1 (2023) | (2DAE7) Bernaerdt Niels";
