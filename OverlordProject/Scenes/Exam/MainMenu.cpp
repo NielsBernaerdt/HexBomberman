@@ -19,6 +19,17 @@ void MainMenu::Initialize()
 	const auto pExitButton = AddChild(new GameObject);
 	m_pExit = pExitButton->AddComponent(new SpriteComponent(L"Textures/Button_Exit.png"));
 	m_pExit->GetTransform()->Translate(960.f, 700.f, 0.f);
+
+	//Sound
+	FMOD::Channel* m_pChannel2D{ nullptr };
+	const auto pFmod = SoundManager::Get()->GetSystem();
+	FMOD::Sound* pSound{};
+	FMOD_RESULT result = pFmod->createStream("Resources/Sounds/BackgroundMusic.mp3", FMOD_DEFAULT | FMOD_LOOP_NORMAL, nullptr, &pSound);
+	SoundManager::Get()->ErrorCheck(result); //Be sure to errocheck the result
+
+	result = pFmod->playSound(pSound, nullptr, false, &m_pChannel2D);
+	m_pChannel2D->setVolume(0.025f);
+	SoundManager::Get()->ErrorCheck(result); //again: check result!
 }
 void MainMenu::Update()
 {

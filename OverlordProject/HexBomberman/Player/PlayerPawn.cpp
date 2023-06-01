@@ -21,6 +21,7 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 	pPeasantMaterial->SetDiffuseTexture(L"Textures/Boss_Diffuse.png");
 
 	const auto pObject = AddChild(new GameObject);
+	//const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Boss.ovm"));
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Boss.ovm"));
 	pModel->SetMaterial(pPeasantMaterial);
 

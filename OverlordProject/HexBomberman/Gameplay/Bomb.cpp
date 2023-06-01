@@ -43,6 +43,15 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 
 	pParticle = m_pGameObject->AddChild(new GameObject);
 	pParticle->AddComponent(new ParticleEmitterComponent(L"Textures/Fire.png", settings, 200));
+
+	//Sound 2D
+	const auto pFmod = SoundManager::Get()->GetSystem();
+	FMOD::Sound* pSound{};
+	FMOD_RESULT result = pFmod->createStream("Resources/Sounds/FuseLoop.wav", FMOD_DEFAULT | FMOD_LOOP_NORMAL, nullptr, &pSound);
+	SoundManager::Get()->ErrorCheck(result); //Be sure to errocheck the result
+
+	result = pFmod->playSound(pSound, nullptr, false, &m_pChannel2D);
+	SoundManager::Get()->ErrorCheck(result); //again: check result!
 }
 
 void Bomb::Update(const SceneContext& sceneContext)
@@ -110,8 +119,20 @@ void Bomb::Explode(int blastRange)
 	}
 }
 
-void Bomb::EndExplosion() const
+void Bomb::EndExplosion()
 {
+	//
+	m_pChannel2D->setPaused(true);
+	//Sound 2D
+	const auto pFmod = SoundManager::Get()->GetSystem();
+	FMOD::Sound* pSound{};
+	FMOD_RESULT result = pFmod->createStream("Resources/Sounds/Explosion.wav", FMOD_DEFAULT, nullptr, &pSound);
+	SoundManager::Get()->ErrorCheck(result); //Be sure to errocheck the result
+
+	result = pFmod->playSound(pSound, nullptr, false, &m_pChannel2D);
+	m_pChannel2D->setVolume(0.075f);
+	SoundManager::Get()->ErrorCheck(result); //again: check result!
+
 	m_pPlayer->BombExploded();
 
 	//todo: Do this in Crate.cpp using collision event?

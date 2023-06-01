@@ -71,8 +71,8 @@ void HexBomberman::Initialize()
 	const auto pGroundObj = AddChild(new GameObject());
 	const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/UnitPlane.ovm"));
 	pGroundModel->SetMaterial(pGroundMaterial);
-	pGroundObj->GetTransform()->Scale(10.0f, 10.0f, 10.0f);
-	pGroundObj->GetTransform()->Translate(0.f, -0.01f, 0.f);
+	pGroundObj->GetTransform()->Scale(5.0f, 1.0f, 5.0f);
+	pGroundObj->GetTransform()->Translate(5.f, -0.01f, 2.f);
 	//***********
 
 	//Hexagonal Grid
@@ -219,7 +219,8 @@ void HexBomberman::Update()
 			}
 			else if (IsOverlapping(m_pRestart))
 			{
-				PostQuitMessage(0);
+				SceneManager::Get()->AddGameScene(new HexBomberman());
+				SceneManager::Get()->NextScene();
 			}
 			else if (IsOverlapping(m_pExit))
 			{

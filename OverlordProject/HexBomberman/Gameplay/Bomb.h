@@ -29,9 +29,11 @@ private:
 	const float m_ExplosionDuration{ 1.f };
 	const int m_BlastRange{ 0 };
 	float m_AccTime{};
-	void EndExplosion() const;
+	void EndExplosion();
 
 	bool m_HasExploded{ false };
 
 	GameObject* pParticle{ nullptr };
+
+	FMOD::Channel* m_pChannel2D{};
 };
