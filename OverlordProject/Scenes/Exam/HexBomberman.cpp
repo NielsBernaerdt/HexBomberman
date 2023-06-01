@@ -78,49 +78,55 @@ void HexBomberman::Initialize()
 	//Hexagonal Grid
 	m_pHexGrid = AddChild(new HexGrid{});
 
-	//Character
-	CharacterDesc characterDesc{ pDefaultMaterial };
-	characterDesc.actionId_MoveForward = CharacterMoveForward;
-	characterDesc.actionId_MoveBackward = CharacterMoveBackward;
-	characterDesc.actionId_MoveLeft = CharacterMoveLeft;
-	characterDesc.actionId_MoveRight = CharacterMoveRight;
-	characterDesc.actionId_PlaceBomb = CharacterPlaceBomb;
-	characterDesc.actionId_PauseGame = PauseGame;
-
-	m_pCharacter = AddChild(new PlayerPawn(characterDesc));
-	m_pCharacter->GetTransform()->Translate(-20.f, 1.f, 0.f);
-
-	//Input
-	auto inputAction = InputAction(CharacterMoveLeft, InputState::down, VK_LEFT);
-	m_SceneContext.pInput->AddInputAction(inputAction);
-
-	inputAction = InputAction(CharacterMoveRight, InputState::down, VK_RIGHT);
-	m_SceneContext.pInput->AddInputAction(inputAction);
-
-	inputAction = InputAction(CharacterMoveForward, InputState::down, VK_UP);
-	m_SceneContext.pInput->AddInputAction(inputAction);
-
-	inputAction = InputAction(CharacterMoveBackward, InputState::down, VK_DOWN);
-	m_SceneContext.pInput->AddInputAction(inputAction);
-
-	inputAction = InputAction(CharacterPlaceBomb, InputState::released, VK_SPACE);
-	m_SceneContext.pInput->AddInputAction(inputAction);
-
-	inputAction = InputAction(PauseGame, InputState::released, 'P');
-	m_SceneContext.pInput->AddInputAction(inputAction);
-
-	//Set Trigger Callback functions
-	auto callback = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
+	const int nrPlayers{ 1 };
+	for (int i{}; i < nrPlayers; ++i)
 	{
-		if (pOtherObject == m_pCharacter && triggerAction == PxTriggerAction::ENTER)
+		//Character
+		CharacterDesc characterDesc{ pDefaultMaterial };
+		characterDesc.actionId_MoveForward = CharacterMoveForward + (10 * i);
+		characterDesc.actionId_MoveBackward = CharacterMoveBackward + (10 * i);
+		characterDesc.actionId_MoveLeft = CharacterMoveLeft + (10 * i);
+		characterDesc.actionId_MoveRight = CharacterMoveRight + (10 * i);
+		characterDesc.actionId_PlaceBomb = CharacterPlaceBomb + (10 * i);
+		characterDesc.actionId_PauseGame = PauseGame + (10 * i);
+		characterDesc.playerIdx = i;
+
+		m_pCharacter = AddChild(new PlayerPawn(characterDesc));
+		m_pCharacter->GetTransform()->Translate(-20.f, 1.f, 0.f);
+
+		//Input
+		//TODO: REPLACE WITH CONTROLLER => change nr players to 4, ADD MORE HUDS, CHANGE M_PcHARACTER TO STDVECTOR
+		auto inputAction = InputAction(CharacterMoveLeft + (10 * i), InputState::down, VK_LEFT, -1, 0, static_cast<GamepadIndex>(i));
+		m_SceneContext.pInput->AddInputAction(inputAction);
+
+		inputAction = InputAction(CharacterMoveRight + (10 * i), InputState::down, VK_RIGHT, -1, 0, static_cast<GamepadIndex>(i));
+		m_SceneContext.pInput->AddInputAction(inputAction);
+
+		inputAction = InputAction(CharacterMoveForward + (10 * i), InputState::down, VK_UP, -1, 0, static_cast<GamepadIndex>(i));
+		m_SceneContext.pInput->AddInputAction(inputAction);
+
+		inputAction = InputAction(CharacterMoveBackward + (10 * i), InputState::down, VK_DOWN, -1, 0, static_cast<GamepadIndex>(i));
+		m_SceneContext.pInput->AddInputAction(inputAction);
+
+		inputAction = InputAction(CharacterPlaceBomb + (10 * i), InputState::released, VK_SPACE, -1, 0, static_cast<GamepadIndex>(i));
+		m_SceneContext.pInput->AddInputAction(inputAction);
+
+		inputAction = InputAction(PauseGame + (10 * i), InputState::released, 'P', -1, 0, static_cast<GamepadIndex>(i));
+		m_SceneContext.pInput->AddInputAction(inputAction);
+
+		//Set Trigger Callback functions
+		auto callback = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
 		{
-			m_pCharacter->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
-		}
-	};
+			if (pOtherObject == m_pCharacter && triggerAction == PxTriggerAction::ENTER)
+			{
+				m_pCharacter->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
+			}
+		};
 
-	for (const auto& cell : m_pHexGrid->GetGrid())
-	{
-		cell->GetGameObject()->SetOnTriggerCallBack(callback);
+		for (const auto& cell : m_pHexGrid->GetGrid())
+		{
+			cell->GetGameObject()->SetOnTriggerCallBack(callback);
+		}
 	}
 	
 	//Post Processing Stack
@@ -180,17 +186,6 @@ void HexBomberman::Initialize()
 	/*const auto pBombSprite = */pBomb->AddComponent(new SpriteComponent(L"Textures/UI_BombIcon.png"));
 	pBomb->GetTransform()->Translate(140.f, 130.f, 0.f);
 	//pBomb->GetTransform()->Scale(0.04f, 0.07f, 1.f);
-
-	
-
-
-
-	//pBombSprite->GetTransform()->Translate(30.f, 100.f, 0.f);
-
-	//const auto pPlayerTwo = pHUD->AddChild(new GameObject);
-	//const auto pSpritePlayerTwo = pPlayerTwo->AddComponent(new SpriteComponent(L"Textures/Background.png"));
-	//pSpritePlayerTwo->GetTransform()->Scale(0.2f, 0.3f, 1.f);
-	//pSpritePlayerTwo->GetTransform()->Translate(0.f, 500.f, 0.f);
 }
 
 void HexBomberman::Update()

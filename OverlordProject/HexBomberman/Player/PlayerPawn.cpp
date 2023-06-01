@@ -87,7 +87,11 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	{
 		move.y = -1.0f;
 	}
-	//todo: Optional: if move.y is near zero (abs(move.y) < epsilon), you could use the ThumbStickPosition.y for movement
+	//Optional: if move.y is near zero (abs(move.y) < epsilon), you could use the ThumbStickPosition.y for movement
+	if (abs(move.y) <= epsilon)
+	{
+		move.y = sceneContext.pInput->GetThumbstickPosition(true, static_cast<GamepadIndex>(m_CharacterDesc.playerIdx)).y;
+	}
 	if (sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_MoveRight))
 	{
 		move.x = 1.0f;
@@ -96,7 +100,11 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	{
 		move.x = -1.0f;
 	}
-	//todo: Optional: if move.x is near zero (abs(move.x) < epsilon), you could use the Left ThumbStickPosition.x for movement
+	//Optional: if move.x is near zero (abs(move.x) < epsilon), you could use the Left ThumbStickPosition.x for movement
+	if (abs(move.x) <= epsilon)
+	{
+		move.x = sceneContext.pInput->GetThumbstickPosition(true, static_cast<GamepadIndex>(m_CharacterDesc.playerIdx)).x;
+	}
 
 	if(sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_PlaceBomb))
 	{

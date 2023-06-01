@@ -18,7 +18,8 @@
 //#define MILESTONE_1
 //#define MILESTONE_2
 #define EXAM
-
+//#define ENABLE_TOGGLES
+//DISABLE DEFINE FREECAMERA.CPP
 
 #pragma region Lab/Milestone Includes
 #ifdef W3
@@ -187,12 +188,15 @@ void MainGame::Initialize()
 
 LRESULT MainGame::WindowProcedureHook(HWND /*hWnd*/, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
 	if(message == WM_KEYUP)
 	{
 		if ((lParam & 0x80000000) != 0x80000000)
 			return -1;
 
+#ifndef ENABLE_TOGGLES
+		UNREFERENCED_PARAMETER(wParam);
+#endif
+#ifdef ENABLE_TOGGLES
 		//[F1] Toggle Scene Info Overlay
 		if(wParam == VK_F1)
 		{
@@ -229,6 +233,7 @@ LRESULT MainGame::WindowProcedureHook(HWND /*hWnd*/, UINT message, WPARAM wParam
 			const auto pScene = SceneManager::Get()->GetActiveScene();
 			pScene->GetPhysxProxy()->NextPhysXFrame();
 		}
+#endif
 	}
 	
 

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "FreeCamera.h"
 
+#define ENABLE_CAMERA_MOVEMENT
+
 void FreeCamera::Initialize(const SceneContext& )
 {
 	m_pCamera = new CameraComponent();
@@ -20,6 +22,7 @@ void FreeCamera::Update(const SceneContext& sceneContext)
 	{
 		//HANDLE INPUT
 		XMFLOAT2 move{ 0, 0 };
+#ifdef ENABLE_CAMERA_MOVEMENT
 		move.y = InputManager::IsKeyboardKey(InputState::down, 'W') ? 1.0f : 0.0f;
 		if (move.y == 0) move.y = -(InputManager::IsKeyboardKey(InputState::down, 'S') ? 1.0f : 0.0f);
 		if (move.y == 0) move.y = InputManager::GetThumbstickPosition().y;
@@ -27,12 +30,15 @@ void FreeCamera::Update(const SceneContext& sceneContext)
 		move.x = InputManager::IsKeyboardKey(InputState::down, 'D') ? 1.0f : 0.0f;
 		if (move.x == 0) move.x = -(InputManager::IsKeyboardKey(InputState::down, 'A') ? 1.0f : 0.0f);
 		if (move.x == 0) move.x = InputManager::GetThumbstickPosition().x;
+#endif
 
 		float currSpeed{ m_MoveSpeed };
+#ifdef ENABLE_CAMERA_MOVEMENT
 		if (InputManager::IsKeyboardKey(InputState::down, VK_LSHIFT))
 			currSpeed *= m_SpeedMultiplier;
-
+#endif
 		XMFLOAT2 look{ 0, 0 };
+#ifdef ENABLE_CAMERA_MOVEMENT
 		bool mouseMoved{ false };
 		if (InputManager::IsMouseButton(InputState::down, VK_LBUTTON))
 		{
@@ -42,11 +48,11 @@ void FreeCamera::Update(const SceneContext& sceneContext)
 
 			mouseMoved = mouseMove.x != 0 || mouseMove.y != 0;
 		}
-
 		if (!mouseMoved)
 		{
 			look = InputManager::GetThumbstickPosition(false);
 		}
+#endif
 
 		//CALCULATE TRANSFORMS
 		const auto forward = XMLoadFloat3(&GetTransform()->GetForward());
