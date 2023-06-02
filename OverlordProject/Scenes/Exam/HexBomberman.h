@@ -38,7 +38,7 @@ private:
 		PauseGame
 	};
 
-	PlayerPawn* m_pCharacter{};
+	std::vector<PlayerPawn*> m_pCharacters{};
 
 	PostBloom* m_pPostBloom{};
 
@@ -54,7 +54,9 @@ private:
 	/*SpriteComponent* m_pHUD{ nullptr };*/
 	SpriteFont* m_pFont{};
 
-	std::string m_Text{ "Hello World!" };
 	XMFLOAT2 m_TextPosition{ 260.f, 260.f };
 	XMFLOAT4 m_TextColor{ 1.f,1.f,1.f,1.f };
+
+	//Player Start Positions
+	XMFLOAT2 m_StartPos[4]{ XMFLOAT2{0.f, 0.f}, XMFLOAT2{16.35f, 13.f}, XMFLOAT2{1.f, 13.f}, XMFLOAT2{15.43f, 0.f} };
 };

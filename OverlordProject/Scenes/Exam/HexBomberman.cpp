@@ -77,8 +77,9 @@ void HexBomberman::Initialize()
 
 	//Hexagonal Grid
 	m_pHexGrid = AddChild(new HexGrid{});
+	XMFLOAT2 hudPos{ 30.f, 100.f };
 
-	const int nrPlayers{ 1 };
+	const int nrPlayers{ 4 };
 	for (int i{}; i < nrPlayers; ++i)
 	{
 		//Character
@@ -91,35 +92,39 @@ void HexBomberman::Initialize()
 		characterDesc.actionId_PauseGame = PauseGame + (10 * i);
 		characterDesc.playerIdx = i;
 
-		m_pCharacter = AddChild(new PlayerPawn(characterDesc));
-		m_pCharacter->GetTransform()->Translate(-20.f, 1.f, 0.f);
+		auto pCharacter = AddChild(new PlayerPawn(characterDesc));
+		m_pCharacters.push_back(pCharacter);
+		pCharacter->GetTransform()->Translate(m_StartPos[i].x, 1.f, m_StartPos[i].y);
 
 		//Input
-		//TODO: REPLACE WITH CONTROLLER => change nr players to 4, ADD MORE HUDS, CHANGE M_PcHARACTER TO STDVECTOR
-		auto inputAction = InputAction(CharacterMoveLeft + (10 * i), InputState::down, VK_LEFT, -1, 0, static_cast<GamepadIndex>(i));
+		auto inputAction = InputAction(CharacterMoveLeft + (10 * i), InputState::down, -1, -1, XINPUT_GAMEPAD_DPAD_LEFT, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
-		inputAction = InputAction(CharacterMoveRight + (10 * i), InputState::down, VK_RIGHT, -1, 0, static_cast<GamepadIndex>(i));
+		inputAction = InputAction(CharacterMoveRight + (10 * i), InputState::down, -1, -1, XINPUT_GAMEPAD_DPAD_RIGHT, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
-		inputAction = InputAction(CharacterMoveForward + (10 * i), InputState::down, VK_UP, -1, 0, static_cast<GamepadIndex>(i));
+		inputAction = InputAction(CharacterMoveForward + (10 * i), InputState::down, -1, -1, XINPUT_GAMEPAD_DPAD_UP, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
-		inputAction = InputAction(CharacterMoveBackward + (10 * i), InputState::down, VK_DOWN, -1, 0, static_cast<GamepadIndex>(i));
+		inputAction = InputAction(CharacterMoveBackward + (10 * i), InputState::down, -1, -1, XINPUT_GAMEPAD_DPAD_DOWN, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
-		inputAction = InputAction(CharacterPlaceBomb + (10 * i), InputState::released, VK_SPACE, -1, 0, static_cast<GamepadIndex>(i));
+		inputAction = InputAction(CharacterPlaceBomb + (10 * i), InputState::released, -1, -1, XINPUT_GAMEPAD_RIGHT_SHOULDER, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
-		inputAction = InputAction(PauseGame + (10 * i), InputState::released, 'P', -1, 0, static_cast<GamepadIndex>(i));
+		inputAction = InputAction(PauseGame + (10 * i), InputState::released, -1, -1, XINPUT_GAMEPAD_START, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
 		//Set Trigger Callback functions
 		auto callback = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
 		{
-			if (pOtherObject == m_pCharacter && triggerAction == PxTriggerAction::ENTER)
+			auto it = std::find_if(m_pCharacters.begin(), m_pCharacters.end(), [&](const GameObject* elem) {
+				return elem == pOtherObject;
+				});
+
+			if (it != m_pCharacters.end() && triggerAction == PxTriggerAction::ENTER)
 			{
-				m_pCharacter->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
+				dynamic_cast<PlayerPawn*>(pOtherObject)->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
 			}
 		};
 
@@ -127,6 +132,25 @@ void HexBomberman::Initialize()
 		{
 			cell->GetGameObject()->SetOnTriggerCallBack(callback);
 		}
+
+
+		//HUD
+		const auto pHUD = AddChild(new GameObject);
+		//Player One
+		const auto pPlayerOne = pHUD->AddChild(new GameObject);
+		pPlayerOne->GetTransform()->Translate(hudPos.x, hudPos.y, 0.f);
+
+		const auto pPortrait = pPlayerOne->AddChild(new GameObject);
+		pPortrait->AddComponent(new SpriteComponent(L"Textures/UI_White.png"));
+		pPortrait->GetTransform()->Translate(0.f, 80.f, 0.f);
+		pPortrait->GetTransform()->Scale(0.8f, 0.8f, 1.f);
+
+		const auto pBomb = pPlayerOne->AddChild(new GameObject);
+		pBomb->AddComponent(new SpriteComponent(L"Textures/UI_BombIcon.png"));
+		pBomb->GetTransform()->Translate(140.f, 130.f, 0.f);
+
+		//second hud on 340 -> calculate delta
+		hudPos.y += 150.f;
 	}
 	
 	//Post Processing Stack
@@ -169,33 +193,25 @@ void HexBomberman::Initialize()
 	const auto pExitButton = pBackground->AddChild(new GameObject);
 	m_pExit = pExitButton->AddComponent(new SpriteComponent(L"Textures/Button_Exit.png"));
 	m_pExit->GetTransform()->Translate(1230.f, 700.f, 0.f);
-
-	//HUD
-	const auto pHUD = AddChild(new GameObject);
-	//Player One
-	const auto pPlayerOne = pHUD->AddChild(new GameObject);
-	pPlayerOne->GetTransform()->Translate(30.f, 100.f, 0.f);
-
-	const auto pPortrait = pPlayerOne->AddChild(new GameObject);
-	/*const auto pPortraitSprite = */pPortrait->AddComponent(new SpriteComponent(L"Textures/UI_White.png"));
-	pPortrait->GetTransform()->Translate(0.f, 80.f, 0.f);
-	pPortrait->GetTransform()->Scale(0.8f, 0.8f, 1.f);
-
-
-	const auto pBomb = pPlayerOne->AddChild(new GameObject);
-	/*const auto pBombSprite = */pBomb->AddComponent(new SpriteComponent(L"Textures/UI_BombIcon.png"));
-	pBomb->GetTransform()->Translate(140.f, 130.f, 0.f);
-	//pBomb->GetTransform()->Scale(0.04f, 0.07f, 1.f);
 }
 
 void HexBomberman::Update()
 {
-	//
-	m_Text = std::to_string((m_pCharacter->GetNrBombs() - m_pCharacter->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacter->GetNrBombs());
-	TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(m_Text), m_TextPosition, m_TextColor);
-	//
+	XMFLOAT2 nrBombsPos{ m_TextPosition };
+	XMFLOAT2 namePos{ 160.f, 190.f };
+	for (int i{}; i < m_pCharacters.size(); ++i)
+	{
+		//
+		std::string text = std::to_string((m_pCharacters[i]->GetNrBombs() - m_pCharacters[i]->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacters[i]->GetNrBombs());
+		TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(text), nrBombsPos, m_TextColor);
+		//
 		//Player One Name
-	TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode("Player One"), { 160.f, 190.f }, XMFLOAT4(Colors::White));
+		TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode("Player " + std::to_string(i + 1)), namePos, XMFLOAT4(Colors::White));
+
+		//
+		namePos.y += 150.f;
+		nrBombsPos.y += 150.f;
+	}
 
 
 	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)
@@ -254,13 +270,6 @@ bool HexBomberman::IsOverlapping(SpriteComponent* pSpriteComponent) const
 
 void HexBomberman::OnGUI()
 {
-	char buffer[256]{};
-	m_Text.copy(&buffer[0], 256);
-	if (ImGui::InputText("Text", &buffer[0], 256))
-	{
-		m_Text = std::string(buffer);
-	}
-
 	ImGui::SliderFloat2("Position", &m_TextPosition.x, 0, m_SceneContext.windowWidth);
 	ImGui::ColorEdit4("Color", &m_TextColor.x, ImGuiColorEditFlags_NoInputs);
 	//
@@ -270,5 +279,5 @@ void HexBomberman::OnGUI()
 	ImGui::Checkbox("Bloom PP", &isEnabled);
 	m_pPostBloom->SetIsEnabled(isEnabled);
 	//
-	m_pCharacter->DrawImGui();
+	//m_pCharacters->DrawImGui();
 }
