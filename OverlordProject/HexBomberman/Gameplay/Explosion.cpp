@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "Explosion.h"
 
+#include "HexBomberman/Player/PlayerPawn.h"
 #include "Prefabs/CubePrefab.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "Materials/DiffuseMaterial.h"
+#include "Scenes/Exam/HexBomberman.h"
 
 Explosion::Explosion(HexCell* pOwnerTile)
 	: m_pOwnerTile(pOwnerTile)
@@ -28,6 +30,17 @@ void Explosion::Initialize(const SceneContext&)
 	//Explosion Actor
 	const auto explosionTrigger = m_pGameObject->AddComponent(new RigidBodyComponent(true));
 	explosionTrigger->AddCollider(PxBoxGeometry{ 0.5f, 0.5f, 0.5f }, *pDefaultMaterial, true, localPose);
+
+	//Set Trigger Callback functions for players
+	auto callback = [=](GameObject* /*pTriggerObject*/, GameObject* pOtherObject, PxTriggerAction triggerAction)
+	{
+		auto pPlayer = dynamic_cast<PlayerPawn*>(pOtherObject);
+		if (pPlayer && triggerAction == PxTriggerAction::ENTER)
+		{
+			dynamic_cast<HexBomberman*>(m_pScene)->PlayerDied(pPlayer);
+		}
+	};
+	m_pGameObject->SetOnTriggerCallBack(callback);
 }
 
 void Explosion::AddCubeComp()

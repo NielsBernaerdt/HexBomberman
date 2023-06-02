@@ -16,6 +16,7 @@ public:
 	HexBomberman& operator=(HexBomberman&& other) noexcept = delete;
 
 	void TogglePause();
+	void PlayerDied(PlayerPawn* pPlayer);
 
 protected:
 	void Initialize() override;
@@ -59,4 +60,7 @@ private:
 
 	//Player Start Positions
 	XMFLOAT2 m_StartPos[4]{ XMFLOAT2{0.f, 0.f}, XMFLOAT2{16.35f, 13.f}, XMFLOAT2{1.f, 13.f}, XMFLOAT2{15.43f, 0.f} };
+
+	//
+	void CheckVictoryCondition();
 };

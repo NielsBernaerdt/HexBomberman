@@ -2,6 +2,7 @@
 #include "HexBomberman.h"
 
 #include "HexBomberman/Gameplay/Bomb.h"
+#include "HexBomberman/Gameplay/Explosion.h"
 #include "HexBomberman/HexGrid/HexGrid.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
@@ -115,8 +116,8 @@ void HexBomberman::Initialize()
 		inputAction = InputAction(PauseGame + (10 * i), InputState::released, -1, -1, XINPUT_GAMEPAD_START, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
-		//Set Trigger Callback functions
-		auto callback = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
+		//Set Trigger Callback functions for hexcells
+		auto cellCallBack = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
 		{
 			auto it = std::find_if(m_pCharacters.begin(), m_pCharacters.end(), [&](const GameObject* elem) {
 				return elem == pOtherObject;
@@ -127,12 +128,10 @@ void HexBomberman::Initialize()
 				dynamic_cast<PlayerPawn*>(pOtherObject)->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
 			}
 		};
-
 		for (const auto& cell : m_pHexGrid->GetGrid())
 		{
-			cell->GetGameObject()->SetOnTriggerCallBack(callback);
+			cell->GetGameObject()->SetOnTriggerCallBack(cellCallBack);
 		}
-
 
 		//HUD
 		const auto pHUD = AddChild(new GameObject);
@@ -197,23 +196,6 @@ void HexBomberman::Initialize()
 
 void HexBomberman::Update()
 {
-	XMFLOAT2 nrBombsPos{ m_TextPosition };
-	XMFLOAT2 namePos{ 160.f, 190.f };
-	for (int i{}; i < m_pCharacters.size(); ++i)
-	{
-		//
-		std::string text = std::to_string((m_pCharacters[i]->GetNrBombs() - m_pCharacters[i]->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacters[i]->GetNrBombs());
-		TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(text), nrBombsPos, m_TextColor);
-		//
-		//Player One Name
-		TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode("Player " + std::to_string(i + 1)), namePos, XMFLOAT4(Colors::White));
-
-		//
-		namePos.y += 150.f;
-		nrBombsPos.y += 150.f;
-	}
-
-
 	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)
 	{
 		TogglePause();
@@ -239,6 +221,27 @@ void HexBomberman::Update()
 			}
 		}
 	}
+	else
+	{
+		XMFLOAT2 nrBombsPos{ m_TextPosition };
+		XMFLOAT2 namePos{ 160.f, 190.f };
+		for (int i{}; i < m_pCharacters.size(); ++i)
+		{
+			std::string text{};
+			if (m_pCharacters[i] != nullptr)
+				text = std::to_string((m_pCharacters[i]->GetNrBombs() - m_pCharacters[i]->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacters[i]->GetNrBombs());
+			else
+				text = "0/0";
+			TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(text), nrBombsPos, m_TextColor);
+			//
+			//Player One Name
+			TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode("Player " + std::to_string(i + 1)), namePos, XMFLOAT4(Colors::White));
+
+			//
+			namePos.y += 150.f;
+			nrBombsPos.y += 150.f;
+		}
+	}
 }
 
 void HexBomberman::TogglePause()
@@ -253,6 +256,38 @@ void HexBomberman::TogglePause()
 	}
 }
 
+void HexBomberman::PlayerDied(PlayerPawn* pPlayer)
+{
+	Logger::LogDebug(L"Player Died");
+
+	auto it = std::find_if(m_pCharacters.begin(), m_pCharacters.end(), [&](const GameObject* elem) {
+		return elem == pPlayer;
+		});
+	if (it == m_pCharacters.end())
+		return;
+
+	//RemoveChild(*it, true);
+	*it = nullptr;
+
+	CheckVictoryCondition();
+}
+
+void HexBomberman::CheckVictoryCondition()
+{
+	int nrPlayersAlive{ 0 };
+	for(const auto& pPlayer : m_pCharacters)
+	{
+		if(pPlayer != nullptr)
+		{
+			++nrPlayersAlive;
+		}
+	}
+
+	if(nrPlayersAlive < 2)
+	{
+		Logger::LogDebug(L"GAME WON!");
+	}
+}
 
 bool HexBomberman::IsOverlapping(SpriteComponent* pSpriteComponent) const
 {
