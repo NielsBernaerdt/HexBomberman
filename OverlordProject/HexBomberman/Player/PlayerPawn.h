@@ -30,7 +30,6 @@ struct CharacterDesc
 	int actionId_MoveForward{ -1 };
 	int actionId_MoveBackward{ -1 };
 	int actionId_PlaceBomb{ -1 };
-	int actionId_PauseGame{ -1 };
 
 	int playerIdx{ -1 };
 };

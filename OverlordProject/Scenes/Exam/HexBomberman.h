@@ -44,7 +44,6 @@ private:
 	PostBloom* m_pPostBloom{};
 
 	//Pause Menu
-	bool m_PreviousPauseState{ false };
 	SpriteComponent* m_pPauseMenu{ nullptr };
 	SpriteComponent* m_pResume{ nullptr };
 	SpriteComponent* m_pRestart{ nullptr };

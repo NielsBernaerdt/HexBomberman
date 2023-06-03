@@ -111,11 +111,6 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 		PlaceBomb();
 	}
 
-	if (sceneContext.pInput->IsActionTriggered(m_CharacterDesc.actionId_PauseGame))
-	{
-		sceneContext.settings.isGamePaused = !sceneContext.settings.isGamePaused;
-	}
-
 	//************************
 	//GATHERING TRANSFORM INFO
 	const TransformComponent* pTransform = GetTransform();

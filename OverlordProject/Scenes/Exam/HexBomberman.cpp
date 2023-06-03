@@ -90,7 +90,6 @@ void HexBomberman::Initialize()
 		characterDesc.actionId_MoveLeft = CharacterMoveLeft + (10 * i);
 		characterDesc.actionId_MoveRight = CharacterMoveRight + (10 * i);
 		characterDesc.actionId_PlaceBomb = CharacterPlaceBomb + (10 * i);
-		characterDesc.actionId_PauseGame = PauseGame + (10 * i);
 		characterDesc.playerIdx = i;
 
 		auto pCharacter = AddChild(new PlayerPawn(characterDesc));
@@ -111,9 +110,6 @@ void HexBomberman::Initialize()
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
 		inputAction = InputAction(CharacterPlaceBomb + (10 * i), InputState::released, -1, -1, XINPUT_GAMEPAD_RIGHT_SHOULDER, static_cast<GamepadIndex>(i));
-		m_SceneContext.pInput->AddInputAction(inputAction);
-
-		inputAction = InputAction(PauseGame + (10 * i), InputState::released, -1, -1, XINPUT_GAMEPAD_START, static_cast<GamepadIndex>(i));
 		m_SceneContext.pInput->AddInputAction(inputAction);
 
 		//Set Trigger Callback functions for hexcells
@@ -178,6 +174,15 @@ void HexBomberman::Initialize()
 
 
 	//Pause Menu
+	auto inputAction = InputAction(PauseGame, InputState::released, -1, -1, XINPUT_GAMEPAD_START, GamepadIndex::playerOne);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+	inputAction = InputAction(PauseGame, InputState::released, -1, -1, XINPUT_GAMEPAD_START, GamepadIndex::playerTwo);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+	inputAction = InputAction(PauseGame, InputState::released, -1, -1, XINPUT_GAMEPAD_START, GamepadIndex::playerThree);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+	inputAction = InputAction(PauseGame, InputState::released, -1, -1, XINPUT_GAMEPAD_START, GamepadIndex::playerFour);
+	m_SceneContext.pInput->AddInputAction(inputAction);
+
 	const auto pBackground = new GameObject{};
 	m_pPauseMenu = pBackground->AddComponent(new SpriteComponent(L"Textures/Background.png"));
 
@@ -266,11 +271,13 @@ void HexBomberman::Update()
 		ClearPlayerStartingArea();
 	}
 
-	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)
+	if(InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerOne)
+		|| InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerTwo)
+		|| InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerThree)
+		|| InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerFour))
 	{
 		TogglePause();
 	}
-	m_PreviousPauseState = m_SceneContext.settings.isGamePaused;
 
 	if(m_ShowVictoryScreen)
 	{
@@ -329,6 +336,7 @@ void HexBomberman::Update()
 
 void HexBomberman::TogglePause()
 {
+	m_SceneContext.settings.isGamePaused = !m_SceneContext.settings.isGamePaused;
 	if(m_SceneContext.settings.isGamePaused)
 	{
 		AddChild(m_pPauseMenu->GetGameObject());
