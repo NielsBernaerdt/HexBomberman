@@ -4,6 +4,7 @@
 #include "Explosion.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
+#include "Materials/BasicMaterial_Deferred.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 #include "Prefabs/SpherePrefab.h"
 
@@ -17,8 +18,8 @@ Bomb::Bomb(HexCell* ownerCell, PlayerPawn* pPlayer, int blastRange)
 
 void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 {
-	const auto pBombMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-	pBombMaterial->SetDiffuseTexture(L"Textures/Bomb_Diffuse.png");
+	const auto pBombMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
+	pBombMaterial->SetDiffuseMap(L"Textures/Bomb_Diffuse.png");
 
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bomb.ovm"));
