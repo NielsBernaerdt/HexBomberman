@@ -22,21 +22,30 @@ void HexCell::Initialize(const SceneContext&)
 	pRigidBody->AddCollider(PxSphereGeometry{ 0.85f }, *pMaterial, true);
 }
 
+void HexCell::PostInitialize(const SceneContext&)
+{
+	if (m_IsInitialized == true)
+		return;
+	m_IsInitialized = true;
+	//Crate
+	//if (std::rand() % 3 != 0) //2 / 3 chance to spawn crate
+	{
+		m_HasCrate = true;
+		const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
+		m_pCrateComponent = pCrateObject->AddComponent(new Crate{});
+		m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
+	}
+}
+
 void HexCell::Update(const SceneContext&)
 {
-	if(m_UpdateOnce == true) //Because the transform of the Hexcell is not yet updated during intialization
-	{
-		m_UpdateOnce = false;
+	////todo: place in PostInitialize
+	//if(m_UpdateOnce == true) //Because the transform of the Hexcell is not yet updated during intialization
+	//{
+	//	m_UpdateOnce = false;
 
-		//Crate
-		if (std::rand() % 3 != 0) //2 / 3 chance to spawn crate
-		{
-			m_HasCrate = true;
-			const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
-			m_pCrateComponent = pCrateObject->AddComponent(new Crate{});
-			m_pCrateComponent->GetTransform()->Translate(0.f, 0.5f, 0.f);
-		}
-	}
+
+	//}
 }
 
 

@@ -33,6 +33,7 @@ public:
 
 protected:
 	void Initialize(const SceneContext&) override;
+	void PostInitialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;
 
 private:
@@ -49,4 +50,6 @@ private:
 	BasePowerUp* m_pPowerUp{ nullptr };
 
 	void AddHexComp();
+
+	bool m_IsInitialized{ false };
 };

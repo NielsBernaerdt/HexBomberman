@@ -63,4 +63,8 @@ private:
 
 	//
 	void CheckVictoryCondition();
+
+	//
+	bool m_IsAreaCleared{ false };
+	void ClearPlayerStartingArea();
 };

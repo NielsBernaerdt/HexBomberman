@@ -57,6 +57,8 @@ public:
 	int GetNrBombs() const { return m_NrBombs; }
 	int GetNrBombsInPlay() const { return m_NrBombsInPlay; }
 
+	HexCell* GetCurrentCell() { return m_pCurrentCell; }
+
 protected:
 	void Initialize(const SceneContext&) override;
 	void Update(const SceneContext&) override;

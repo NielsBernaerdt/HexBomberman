@@ -33,6 +33,8 @@ void HexBomberman::Initialize()
 
 	//Directional
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
+	m_SceneContext.pLights->GetDirectionalLight().intensity = 0.01f;
+	//m_SceneContext.pLights->GetDirectionalLight().isEnabled = false;
 
 	//Spot Light
 	Light light = {};
@@ -126,6 +128,7 @@ void HexBomberman::Initialize()
 			if (it != m_pCharacters.end() && triggerAction == PxTriggerAction::ENTER)
 			{
 				dynamic_cast<PlayerPawn*>(pOtherObject)->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
+				Logger::LogDebug(L"Yay");
 			}
 		};
 		for (const auto& cell : m_pHexGrid->GetGrid())
@@ -194,8 +197,59 @@ void HexBomberman::Initialize()
 	m_pExit->GetTransform()->Translate(1230.f, 700.f, 0.f);
 }
 
+void HexBomberman::ClearPlayerStartingArea()
+{
+	//todo:: not error safe:
+	const auto& pCellOne = m_pCharacters[0]->GetCurrentCell();
+	const auto& pCellTwo = m_pCharacters[1]->GetCurrentCell();
+	if( pCellOne && pCellTwo && pCellOne == pCellTwo)
+		return;
+
+	//voor elke speler hun cell (+ zorg dat er geen crate staat)
+	//voor elke neighboring cell (+ zorg dat er geen crate staat)
+	//voor 1 van hun neighbors: zorg dat er geen crate staat
+
+	for (const auto& pPlayer : m_pCharacters)
+	{
+		if (const auto& pPlayerCell = pPlayer->GetCurrentCell())
+		{
+			m_IsAreaCleared = true;
+
+			if (pPlayerCell->HasCrate()) pPlayerCell->DestroyCrate();
+
+			for (const auto& pNeighbors : pPlayerCell->GetNeighbors())
+			{
+				if (pNeighbors == nullptr)
+					continue;
+
+				if (pNeighbors->HasCrate()) pNeighbors->DestroyCrate();
+
+				for (const auto& pNeighborsNeighbor : pNeighbors->GetNeighbors())
+				{
+					if (pNeighborsNeighbor == nullptr)
+						continue;
+
+					if (pNeighborsNeighbor->HasCrate())
+					{
+						pNeighborsNeighbor->DestroyCrate(); //Dit resulteert in 1 crate per neighbor
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 void HexBomberman::Update()
 {
+	if(m_IsAreaCleared == false)
+	{
+		ClearPlayerStartingArea();
+	}
+
 	if(m_SceneContext.settings.isGamePaused != m_PreviousPauseState)
 	{
 		TogglePause();
@@ -266,7 +320,7 @@ void HexBomberman::PlayerDied(PlayerPawn* pPlayer)
 	if (it == m_pCharacters.end())
 		return;
 
-	//RemoveChild(*it, true);
+	RemoveChild(*it, false);
 	*it = nullptr;
 
 	CheckVictoryCondition();
