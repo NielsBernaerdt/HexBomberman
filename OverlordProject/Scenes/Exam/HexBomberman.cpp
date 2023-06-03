@@ -18,7 +18,7 @@ HexBomberman::~HexBomberman()
 void HexBomberman::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
-	//m_SceneContext.settings.drawPhysXDebug = false;
+	m_SceneContext.settings.drawPhysXDebug = false;
 	m_SceneContext.settings.drawGrid = false;
 
 	m_SceneContext.useDeferredRendering = true;
@@ -140,7 +140,7 @@ void HexBomberman::Initialize()
 		pPlayerOne->GetTransform()->Translate(hudPos.x, hudPos.y, 0.f);
 
 		const auto pPortrait = pPlayerOne->AddChild(new GameObject);
-		pPortrait->AddComponent(new SpriteComponent(L"Textures/UI_White.png"));
+		pPortrait->AddComponent(new SpriteComponent(L"Textures/UI_Bomberman" + std::to_wstring(i) + L".png"));
 		pPortrait->GetTransform()->Translate(0.f, 80.f, 0.f);
 		pPortrait->GetTransform()->Scale(0.8f, 0.8f, 1.f);
 
@@ -195,7 +195,7 @@ void HexBomberman::Initialize()
 
 	//Victory menu
 	const auto pBackgroundVictory = new GameObject{};
-	m_pVictoryMenu = pBackgroundVictory->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pVictoryMenu = pBackgroundVictory->AddComponent(new SpriteComponent(L"Textures/VictoryBackground.png"));
 
 	const auto pRestartButtonVictoryMenu = pBackgroundVictory->AddChild(new GameObject);
 	m_pRestartVictoryMenu = pRestartButtonVictoryMenu->AddComponent(new SpriteComponent(L"Textures/Button_Restart.png"));
@@ -303,7 +303,8 @@ void HexBomberman::Update()
 			}
 		}
 	}
-	else
+	if(m_SceneContext.settings.isGamePaused == false
+		&& m_ShowVictoryScreen == false)
 	{
 		XMFLOAT2 nrBombsPos{ m_TextPosition };
 		XMFLOAT2 namePos{ 160.f, 190.f };

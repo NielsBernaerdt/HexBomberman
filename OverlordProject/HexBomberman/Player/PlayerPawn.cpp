@@ -2,6 +2,7 @@
 #include "PlayerPawn.h"
 
 #include "HexBomberman/HexGrid/HexCell.h"
+#include "Materials/BasicMaterial_Deferred.h"
 #include "Materials/DiffuseMaterial_Skinned.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow_Skinned.h"
 
@@ -17,15 +18,14 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
 
 	//Animations
-	const auto pPeasantMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
-	pPeasantMaterial->SetDiffuseTexture(L"Textures/Boss_Diffuse.png");
+	const auto pBomberMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+	pBomberMaterial->SetDiffuseTexture(L"Textures/Bomberman_Diffuse" + std::to_wstring(m_CharacterDesc.playerIdx) + L".png");
 
 	const auto pObject = AddChild(new GameObject);
-	//const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Boss.ovm"));
-	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Boss.ovm"));
-	pModel->SetMaterial(pPeasantMaterial);
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bomberman.ovm"));
+	pModel->SetMaterial(pBomberMaterial);
 
-	pObject->GetTransform()->Scale(0.012f);
+	pObject->GetTransform()->Scale(0.008f);
 	pObject->GetTransform()->Translate(0.f, -1.f, 0.f);
 
 	pAnimator = pModel->GetAnimator();
