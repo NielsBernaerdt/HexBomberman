@@ -51,6 +51,10 @@ private:
 	SpriteComponent* m_pExit{ nullptr };
 	bool IsOverlapping(SpriteComponent* pSpriteComponent) const;
 
+	//Victory Menu
+	bool m_ShowVictoryScreen{ false };
+	SpriteComponent* m_pVictoryMenu{ nullptr };
+	SpriteComponent* m_pRestartVictoryMenu{ nullptr };
 	//HUD
 	/*SpriteComponent* m_pHUD{ nullptr };*/
 	SpriteFont* m_pFont{};
@@ -67,4 +71,7 @@ private:
 	//
 	bool m_IsAreaCleared{ false };
 	void ClearPlayerStartingArea();
+
+	//Players to kill
+	std::vector<PlayerPawn*> m_pPlayersToDie{};
 };

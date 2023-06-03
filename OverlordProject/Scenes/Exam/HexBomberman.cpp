@@ -11,10 +11,8 @@
 
 HexBomberman::~HexBomberman()
 {
-	if(m_SceneContext.settings.isGamePaused == false)
-	{
-		delete m_pPauseMenu->GetGameObject();
-	}
+	AddChild(m_pPauseMenu->GetGameObject());
+	AddChild(m_pVictoryMenu->GetGameObject());
 }
 
 void HexBomberman::Initialize()
@@ -128,7 +126,6 @@ void HexBomberman::Initialize()
 			if (it != m_pCharacters.end() && triggerAction == PxTriggerAction::ENTER)
 			{
 				dynamic_cast<PlayerPawn*>(pOtherObject)->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
-				Logger::LogDebug(L"Yay");
 			}
 		};
 		for (const auto& cell : m_pHexGrid->GetGrid())
@@ -195,6 +192,14 @@ void HexBomberman::Initialize()
 	const auto pExitButton = pBackground->AddChild(new GameObject);
 	m_pExit = pExitButton->AddComponent(new SpriteComponent(L"Textures/Button_Exit.png"));
 	m_pExit->GetTransform()->Translate(1230.f, 700.f, 0.f);
+
+	//Victory menu
+	const auto pBackgroundVictory = new GameObject{};
+	m_pVictoryMenu = pBackgroundVictory->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+
+	const auto pRestartButtonVictoryMenu = pBackgroundVictory->AddChild(new GameObject);
+	m_pRestartVictoryMenu = pRestartButtonVictoryMenu->AddComponent(new SpriteComponent(L"Textures/Button_Restart.png"));
+	m_pRestartVictoryMenu->GetTransform()->Translate(730.f, 700.f, 0.f);
 }
 
 void HexBomberman::ClearPlayerStartingArea()
@@ -245,6 +250,17 @@ void HexBomberman::ClearPlayerStartingArea()
 
 void HexBomberman::Update()
 {
+	if (m_pPlayersToDie.size() >= 1)
+	{
+		for(auto pPlayer : m_pPlayersToDie)
+		{
+			RemoveChild(pPlayer, true);
+		}
+		CheckVictoryCondition();
+		m_pPlayersToDie = std::vector<PlayerPawn*>{};
+	}
+
+
 	if(m_IsAreaCleared == false)
 	{
 		ClearPlayerStartingArea();
@@ -255,6 +271,18 @@ void HexBomberman::Update()
 		TogglePause();
 	}
 	m_PreviousPauseState = m_SceneContext.settings.isGamePaused;
+
+	if(m_ShowVictoryScreen)
+	{
+		if (InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON))
+		{
+			if (IsOverlapping(m_pRestartVictoryMenu))
+			{
+				SceneManager::Get()->AddGameScene(new HexBomberman());
+				SceneManager::Get()->NextScene();
+			}
+		}
+	}
 
 	if(m_SceneContext.settings.isGamePaused == true)
 	{
@@ -310,20 +338,19 @@ void HexBomberman::TogglePause()
 	}
 }
 
-void HexBomberman::PlayerDied(PlayerPawn* pPlayer)
+void HexBomberman::PlayerDied(PlayerPawn* pPlayerToDie)
 {
-	Logger::LogDebug(L"Player Died");
-
-	auto it = std::find_if(m_pCharacters.begin(), m_pCharacters.end(), [&](const GameObject* elem) {
-		return elem == pPlayer;
-		});
-	if (it == m_pCharacters.end())
-		return;
+	for(int i{}; i < m_pCharacters.size(); ++i)
+	{
+		if(m_pCharacters[i] == pPlayerToDie)
+		{
+			m_pPlayersToDie.push_back(pPlayerToDie);
+			m_pCharacters[i] = nullptr;
+		}
+	}
 
 	//RemoveChild(*it, false);
-	*it = nullptr;
-
-	CheckVictoryCondition();
+	//*it = nullptr;
 }
 
 void HexBomberman::CheckVictoryCondition()
@@ -339,7 +366,8 @@ void HexBomberman::CheckVictoryCondition()
 
 	if(nrPlayersAlive < 2)
 	{
-		Logger::LogDebug(L"GAME WON!");
+		AddChild(m_pVictoryMenu->GetGameObject());
+		m_ShowVictoryScreen = true;
 	}
 }
 
