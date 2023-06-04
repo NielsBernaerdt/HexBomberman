@@ -5,7 +5,6 @@
 #include "HexBomberman/Gameplay/Bomb.h"
 #include "HexBomberman/Player/PlayerPawn.h"
 #include "HexBomberman/PowerUps/Crate.h"
-#include "Prefabs/SpherePrefab.h"
 #include "HexBomberman/PowerUps/BasePowerUp.h"
 
 void HexCell::Initialize(const SceneContext&)
@@ -13,10 +12,6 @@ void HexCell::Initialize(const SceneContext&)
 	//Materials
 	const auto pMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 
-	//Ground Tile
-	//AddHexComp();
-	//GetTransform()->Scale(0.975f, 1.f, 0.975f);
-	
 	//Actor
 	const auto pRigidBody = m_pGameObject->AddComponent(new RigidBodyComponent(true));
 	pRigidBody->AddCollider(PxSphereGeometry{ 0.85f }, *pMaterial, true);
@@ -25,12 +20,11 @@ void HexCell::Initialize(const SceneContext&)
 void HexCell::Update(const SceneContext&)
 {
 	//todo: place in PostInitialize
-	if(m_UpdateOnce == true) //Because the transform of the Hexcell is not yet updated during intialization
+	if(m_UpdateOnce == true)
 	{
 		m_UpdateOnce = false;
 
-		//Crate
-		//if (std::rand() % 3 != 0) //2 / 3 chance to spawn crate
+		if (std::rand() % 5 != 0) //4 / 5 chance to spawn crate
 		{
 			m_HasCrate = true;
 			const auto pCrateObject = m_pGameObject->AddChild(new GameObject{});
@@ -52,40 +46,12 @@ void HexCell::SetNeighbor(HexDirection direction, HexCell* cell)
 	cell->GetNeighbors()[static_cast<int>(HexDirectionExtensions::Opposite(direction))] = this;
 }
 
-void HexCell::PlaceBomb(PlayerPawn* pPlayer, int blastRange)
-{
-	//Bomb Object
-	const auto bombObject = m_pGameObject->AddChild(new GameObject{});
-	bombObject->AddComponent(new Bomb{this, pPlayer, blastRange});
-	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
-}
-
-void HexCell::DestroyCrate(bool spawnCrate)
-{
-	m_HasCrate = false;
-	if(spawnCrate) m_pCrateComponent->SpawnPowerUp(this);
-	m_pGameObject->RemoveChild(m_pCrateComponent->GetGameObject(), true);
-}
-
-void HexCell::AddPowerUp(BasePowerUp* pPowerUp)
-{
-	m_HasPowerUp = true;
-	m_pPowerUp = pPowerUp;
-}
-
-void HexCell::CollectPowerUp(PlayerPawn* pPlayer)
-{
-	m_HasPowerUp = false;
-	m_pPowerUp->CollectPowerUp(pPlayer);
-	m_pGameObject->RemoveChild(m_pPowerUp->GetGameObject(), true);
-}
-
 std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 {
 	const std::vector<HexCell*>::size_type maxNrTilesToExplode = 6 * length;
 	std::vector<HexCell*> blastTiles{ maxNrTilesToExplode };
 
-	for(int currentHexDirection{}; currentHexDirection < m_pNeighbors.size(); ++currentHexDirection)
+	for (int currentHexDirection{}; currentHexDirection < m_pNeighbors.size(); ++currentHexDirection)
 	{
 		HexCell* currentCell = m_pNeighbors[currentHexDirection];
 		if (currentCell == nullptr)
@@ -119,48 +85,29 @@ std::vector<HexCell*> HexCell::GetTilesToExplode(int length) const
 	return blastTiles;
 }
 
-void HexCell::AddHexComp()
+void HexCell::PlaceBomb(PlayerPawn* pPlayer, int blastRange)
 {
-	//Create Cube
-	const auto pMesh = new MeshDrawComponent(12);
-	XMFLOAT4 currentCellColor{ Colors::LightGreen };
+	const auto bombObject = m_pGameObject->AddChild(new GameObject{});
+	bombObject->AddComponent(new Bomb{this, pPlayer, blastRange});
+	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
+}
 
-	//RIGHTUNDER -> RIGHTUPPER
-	pMesh->AddTriangle(
-		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, sin(-XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
-	);
-	//RIGHTUPPER -> UPPER
-	pMesh->AddTriangle(
-		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI/2), 0, sin(XM_PI/2)), XMFLOAT3(0, 0, 1), currentCellColor)
-	);
-	//UPPER -> LEFTUPPER
-	pMesh->AddTriangle(
-		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI/2), 0, sin(XM_PI/2)), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(-cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
-	);
-	//LEFTUPPER -> LEFTUNDER
-	pMesh->AddTriangle(
-		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(-cos(XM_PI/6), 0, sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(-cos(XM_PI/6), 0, -sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
-	);
-	//LEFTUPPER -> UNDER
-	pMesh->AddTriangle(
-		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(-cos(XM_PI / 6), 0, -sin(XM_PI / 6)), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI / 2), 0, -sin(XM_PI / 2)), XMFLOAT3(0, 0, 1), currentCellColor)
-	);
-	//UNDER -> RIGHTUNDER
-	pMesh->AddTriangle(
-		VertexPosNormCol(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI / 2), 0, -sin(XM_PI / 2)), XMFLOAT3(0, 0, 1), currentCellColor),
-		VertexPosNormCol(XMFLOAT3(cos(XM_PI/6), 0, -sin(XM_PI/6)), XMFLOAT3(0, 0, 1), currentCellColor)
-	);
+void HexCell::DestroyCrate(bool spawnCrate)
+{
+	m_HasCrate = false;
+	if(spawnCrate) m_pCrateComponent->SpawnPowerUp(this);
+	m_pGameObject->RemoveChild(m_pCrateComponent->GetGameObject(), true);
+}
 
-	m_pGameObject->AddComponent(pMesh);
+void HexCell::AddPowerUp(BasePowerUp* pPowerUp)
+{
+	m_HasPowerUp = true;
+	m_pPowerUp = pPowerUp;
+}
+
+void HexCell::CollectPowerUp(PlayerPawn* pPlayer)
+{
+	m_HasPowerUp = false;
+	m_pPowerUp->CollectPowerUp(pPlayer);
+	m_pGameObject->RemoveChild(m_pPowerUp->GetGameObject(), true);
 }

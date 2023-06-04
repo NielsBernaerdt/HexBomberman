@@ -1,19 +1,31 @@
 #include "stdafx.h"
+#include "HexUtils.h"
 #include "HexGrid.h"
 #include "HexCell.h"
-#include "HexUtils.h"
-#include "Materials/BasicMaterial_Deferred.h"
-#include "Materials/ColorMaterial.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
 void HexGrid::Initialize(const SceneContext&)
 {
-	const int totalColumns{ 10 };
-	const int totalRows{ 10 };
+	ConstructGrid();
 
-	for (int rowIndex = 0, currentCellIndex = 0; rowIndex < totalRows; rowIndex++)
+	//Ground Plane
+	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	pGroundMaterial->SetDiffuseTexture(L"Textures/Floor_diffuse.png");
+	//***********
+	const auto pGroundObj = AddChild(new GameObject());
+	const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/UnitPlane.ovm"));
+	pGroundModel->SetMaterial(pGroundMaterial);
+	pGroundObj->GetTransform()->Scale(1.85f, 1.0f, 1.55f);
+	pGroundObj->GetTransform()->Translate(8.f, 0.f, 7.f);
+
+	ConstructWalls();
+}
+
+void HexGrid::ConstructGrid()
+{
+	for (int rowIndex = 0, currentCellIndex = 0; rowIndex < m_TotalRows; rowIndex++)
 	{
-		for (int columnIndex = 0; columnIndex < totalColumns; columnIndex++, currentCellIndex++)
+		for (int columnIndex = 0; columnIndex < m_TotalColumns; columnIndex++, currentCellIndex++)
 		{
 			//Create Cell Object & HexCell Component
 			GameObject* cellObject = AddChild(new GameObject{});
@@ -36,132 +48,76 @@ void HexGrid::Initialize(const SceneContext&)
 			{
 				if ((rowIndex & 1) == 0)
 				{
-					cell->SetNeighbor(HexDirection::SE, m_pGrid[currentCellIndex - totalColumns]);
+					cell->SetNeighbor(HexDirection::SE, m_pGrid[currentCellIndex - m_TotalColumns]);
 
 					if (columnIndex > 0)
 					{
-						cell->SetNeighbor(HexDirection::SW, m_pGrid[currentCellIndex - totalColumns - 1]);
+						cell->SetNeighbor(HexDirection::SW, m_pGrid[currentCellIndex - m_TotalColumns - 1]);
 					}
 				}
 				else
 				{
-					cell->SetNeighbor(HexDirection::SW, m_pGrid[currentCellIndex - totalColumns]);
+					cell->SetNeighbor(HexDirection::SW, m_pGrid[currentCellIndex - m_TotalColumns]);
 
-					if (columnIndex < totalColumns - 1)
+					if (columnIndex < m_TotalColumns - 1)
 					{
-						cell->SetNeighbor(HexDirection::SE, m_pGrid[currentCellIndex - totalColumns + 1]);
+						cell->SetNeighbor(HexDirection::SE, m_pGrid[currentCellIndex - m_TotalColumns + 1]);
 					}
 				}
 			}
 		}
 	}
+}
 
-	//Ground Plane
-	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-	pGroundMaterial->SetDiffuseTexture(L"Textures/Floor_diffuse.png");
-	//pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
-	//***********
-	const auto pGroundObj = AddChild(new GameObject());
-	const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/UnitPlane.ovm"));
-	pGroundModel->SetMaterial(pGroundMaterial);
-	pGroundObj->GetTransform()->Scale(1.85f, 1.0f, 1.55f);
-	pGroundObj->GetTransform()->Translate(8.f, 0.f, 7.f);
-
-	//WALLS//
+void HexGrid::ConstructWalls()
+{
 	//Materials
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
+	//DiffuseMaterial
+	const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	pCrateMaterial->SetDiffuseTexture(L"Textures/Wall_Diffuse.jpg");
 
 	//Wall Left
+	const int nrBlocksWidth{ 19 };
+	const int nrBlocksHeight{ 16 };
 	XMFLOAT2 pos{ -1.5f, -1.2f };
-	for (int i{}; i < 16; ++i)
+	for (int i{}; i < nrBlocksHeight; ++i)
 	{
 		pos.y += 1.f;
-		//Cube Object
-		//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
-		//pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
-		//pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
-		//pCrateMaterial->SetSpecularMap(L"Textures/Crate_Specular.png");
-		const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-		pCrateMaterial->SetDiffuseTexture(L"Textures/Wall_Diffuse.jpg");
-		const auto pObject = AddChild(new GameObject);
-		const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bricks.ovm"));
-		pModel->SetMaterial(pCrateMaterial);
-
-		//Actor
-		const auto explosionTrigger = pObject->AddComponent(new RigidBodyComponent(true));
-		explosionTrigger->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, *pDefaultMaterial);
-
-		//SCALE
-		pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
-		pObject->GetTransform()->Translate(pos.x, 0.5f, pos.y);
+		AddWall(pos, pDefaultMaterial, pCrateMaterial);
 	}
 	//Wall Up
-	for (int i{}; i < 19; ++i)
+	for (int i{}; i < nrBlocksWidth; ++i)
 	{
 		pos.x += 1.f;
-		//Cube Object
-		//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
-		//pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
-		//pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
-		//pCrateMaterial->SetSpecularMap(L"Textures/Crate_Specular.png");
-		const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-		pCrateMaterial->SetDiffuseTexture(L"Textures/Wall_Diffuse.jpg");
-		const auto pObject = AddChild(new GameObject);
-		const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bricks.ovm"));
-		pModel->SetMaterial(pCrateMaterial);
-
-		//Actor
-		const auto explosionTrigger = pObject->AddComponent(new RigidBodyComponent(true));
-		explosionTrigger->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, *pDefaultMaterial);
-
-		//SCALE
-		pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
-		pObject->GetTransform()->Translate(pos.x, 0.5f, pos.y);
+		AddWall(pos, pDefaultMaterial, pCrateMaterial);
 	}
-	//Wall RIght
-	for (int i{}; i < 16; ++i)
+	//Wall Right
+	for (int i{}; i < nrBlocksHeight; ++i)
 	{
 		pos.y -= 1.f;
-		//Cube Object
-		//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
-		//pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
-		//pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
-		//pCrateMaterial->SetSpecularMap(L"Textures/Crate_Specular.png");
-		const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-		pCrateMaterial->SetDiffuseTexture(L"Textures/Wall_Diffuse.jpg");
-		const auto pObject = AddChild(new GameObject);
-		const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bricks.ovm"));
-		pModel->SetMaterial(pCrateMaterial);
-
-		//Actor
-		const auto explosionTrigger = pObject->AddComponent(new RigidBodyComponent(true));
-		explosionTrigger->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, * pDefaultMaterial);
-
-		//SCALE
-		pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
-		pObject->GetTransform()->Translate(pos.x, 0.5f, pos.y);
+		AddWall(pos, pDefaultMaterial, pCrateMaterial);
 	}
 	//Wall Under
-	for (int i{}; i < 19; ++i)
+	for (int i{}; i < nrBlocksWidth; ++i)
 	{
 		pos.x -= 1.f;
-		//Cube Object
-		//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
-		//pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
-		//pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
-		//pCrateMaterial->SetSpecularMap(L"Textures/Crate_Specular.png");
-		const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-		pCrateMaterial->SetDiffuseTexture(L"Textures/Wall_Diffuse.jpg");
-		const auto pObject = AddChild(new GameObject);
-		const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bricks.ovm"));
-		pModel->SetMaterial(pCrateMaterial);
-
-		//Actor
-		const auto explosionTrigger = pObject->AddComponent(new RigidBodyComponent(true));
-		explosionTrigger->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, *pDefaultMaterial);
-
-		//SCALE
-		pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
-		pObject->GetTransform()->Translate(pos.x, 0.5f, pos.y);
+		AddWall(pos, pDefaultMaterial, pCrateMaterial);
 	}
+}
+
+void HexGrid::AddWall(const XMFLOAT2& pos, const PxMaterial* pDefaultMaterial, DiffuseMaterial_Shadow* pCrateMaterial)
+{
+	//Object
+	const auto pObject = AddChild(new GameObject);
+	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bricks.ovm"));
+	pModel->SetMaterial(pCrateMaterial);
+
+	//Actor
+	const auto pActor = pObject->AddComponent(new RigidBodyComponent(true));
+	pActor->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, *pDefaultMaterial);
+
+	//Scale
+	pObject->GetTransform()->Scale(0.5f, 0.5f, 0.5f);
+	pObject->GetTransform()->Translate(pos.x, 0.5f, pos.y);
 }
