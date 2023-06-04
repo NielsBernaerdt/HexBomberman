@@ -45,7 +45,7 @@ private:
 
 	//Contol Scheme
 	SpriteComponent* m_pControllerScheme{ nullptr };
-	bool m_ShowControllerScheme{true};
+	inline static bool m_ShowControllerScheme{true};
 	float m_AccControllerScheme{};
 
 	//Pause Menu

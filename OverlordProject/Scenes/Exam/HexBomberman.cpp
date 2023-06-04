@@ -22,7 +22,7 @@ HexBomberman::~HexBomberman()
 void HexBomberman::Initialize()
 {
 	m_SceneContext.settings.enableOnGUI = true;
-	m_SceneContext.settings.drawPhysXDebug = false;
+	//m_SceneContext.settings.drawPhysXDebug = false;
 	m_SceneContext.settings.drawGrid = false;
 
 	m_SceneContext.useDeferredRendering = true;
@@ -174,12 +174,15 @@ void HexBomberman::Initialize()
 
 	m_pPostBloom = MaterialManager::Get()->CreateMaterial<PostBloom>();
 	AddPostProcessingEffect(m_pPostBloom);
-	m_pPostBloom->SetIsEnabled(false);
 
 	//Controller Scheme
 	const auto pControllerBackground = new GameObject{};
 	m_pControllerScheme = pControllerBackground->AddComponent(new SpriteComponent(L"Textures/ControlScheme.png"));
-	AddChild(pControllerBackground);
+	if (m_ShowControllerScheme)
+	{
+		AddChild(pControllerBackground);
+		m_pPostBloom->SetIsEnabled(false);
+	}
 
 	//Pause Menu
 	auto inputAction = InputAction(PauseGame, InputState::released, -1, -1, XINPUT_GAMEPAD_START, GamepadIndex::playerOne);

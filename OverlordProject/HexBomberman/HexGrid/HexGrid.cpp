@@ -57,8 +57,8 @@ void HexGrid::Initialize(const SceneContext&)
 	}
 
 	//Ground Plane
-	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<ColorMaterial>();
-	pGroundMaterial->SetColor(XMFLOAT4(Colors::DarkGreen));
+	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
+	pGroundMaterial->SetDiffuseTexture(L"Textures/Floor_diffuse.png");
 	//pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
 	//***********
 	const auto pGroundObj = AddChild(new GameObject());
