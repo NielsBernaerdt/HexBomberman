@@ -256,6 +256,20 @@ void HexBomberman::ClearPlayerStartingArea()
 
 void HexBomberman::Update()
 {
+	if(m_IsVibrating)
+	{
+		m_AccVibTime += m_SceneContext.pGameTime->GetElapsed();
+		if(m_AccVibTime >= m_MaxVibTime)
+		{
+			m_AccVibTime = 0.f;
+			for(int i{}; i < 4; ++i)
+			{
+				InputManager::SetVibration(false, false, static_cast<GamepadIndex>(i));
+				m_IsVibrating = false;
+			}
+		}
+	}
+
 	if (m_pPlayersToDie.size() >= 1)
 	{
 		for(auto pPlayer : m_pPlayersToDie)
@@ -272,43 +286,53 @@ void HexBomberman::Update()
 		ClearPlayerStartingArea();
 	}
 
-	if(InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerOne)
-		|| InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerTwo)
-		|| InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerThree)
-		|| InputManager::IsGamepadButton(InputState::released, XINPUT_GAMEPAD_START, GamepadIndex::playerFour))
+	if(InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerOne)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerTwo)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerThree)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerFour))
 	{
 		TogglePause();
 	}
 
-	if(m_ShowVictoryScreen)
+	if (m_ShowVictoryScreen)
 	{
-		if (InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON))
+		if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pRestartVictoryMenu))
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerOne)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerTwo)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerThree)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerFour))
 		{
-			if (IsOverlapping(m_pRestartVictoryMenu))
-			{
-				SceneManager::Get()->AddGameScene(new HexBomberman());
-				SceneManager::Get()->NextScene();
-			}
+			SceneManager::Get()->AddGameScene(new HexBomberman());
+			SceneManager::Get()->NextScene();
 		}
 	}
 
-	if(m_SceneContext.settings.isGamePaused == true)
+	if (m_SceneContext.settings.isGamePaused == true)
 	{
-		if (InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON))
+		if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pResume))
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerOne)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerTwo)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerThree)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerFour))
 		{
-			if (IsOverlapping(m_pResume))
-			{
-				m_SceneContext.settings.isGamePaused = !m_SceneContext.settings.isGamePaused;
-			}
-			else if (IsOverlapping(m_pRestart))
-			{
-				SceneManager::Get()->AddGameScene(new HexBomberman());
-				SceneManager::Get()->NextScene();
-			}
-			else if (IsOverlapping(m_pExit))
-			{
-				PostQuitMessage(0);
-			}
+			TogglePause();
+		}
+		else if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pRestart))
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerOne)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerTwo)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerThree)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_X, GamepadIndex::playerFour))
+		{
+			SceneManager::Get()->AddGameScene(new HexBomberman());
+			SceneManager::Get()->NextScene();
+		}
+		else if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pExit))
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerOne)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerTwo)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerThree)
+			|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerFour))
+		{
+			PostQuitMessage(0);
 		}
 	}
 	if(m_SceneContext.settings.isGamePaused == false
@@ -358,6 +382,8 @@ void HexBomberman::PlayerDied(PlayerPawn* pPlayerToDie)
 		{
 			m_pPlayersToDie.push_back(pPlayerToDie);
 			m_pCharacters[i] = nullptr;
+			InputManager::SetVibration(true, true, static_cast<GamepadIndex>(i));
+			m_IsVibrating = true;
 		}
 	}
 

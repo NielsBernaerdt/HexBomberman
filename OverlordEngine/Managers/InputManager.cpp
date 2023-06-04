@@ -343,16 +343,16 @@ float InputManager::GetTriggerPressure(bool leftTrigger, GamepadIndex playerInde
 	}
 }
 
-void InputManager::SetVibration(float leftVibration, float rightVibration, GamepadIndex playerIndex)
+void InputManager::SetVibration(bool leftVibration, bool rightVibration, GamepadIndex playerIndex)
 {
 	XINPUT_VIBRATION vibration;
-	MathHelper::Clamp<float>(leftVibration, 0.0f, 1.0f);
-	MathHelper::Clamp<float>(rightVibration, 0.0f, 1.0f);
+	float lVibration = (leftVibration == true ? 1.f : 0.f);
+	float rVibration = (rightVibration == true ? 1.f : 0.f);
 
 	ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 
-	vibration.wLeftMotorSpeed = static_cast<WORD>(leftVibration * 65535);
-	vibration.wRightMotorSpeed = static_cast<WORD>(rightVibration * 65535);
+	vibration.wLeftMotorSpeed = static_cast<WORD>(lVibration * 65535);
+	vibration.wRightMotorSpeed = static_cast<WORD>(rVibration * 65535);
 
 	XInputSetState(int(playerIndex), &vibration);
 }

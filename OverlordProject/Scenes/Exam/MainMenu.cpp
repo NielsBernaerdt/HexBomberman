@@ -33,16 +33,21 @@ void MainMenu::Initialize()
 }
 void MainMenu::Update()
 {
-	if (InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON))
+	if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pStart))
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerOne)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerTwo)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerThree)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerFour))
 	{
-		if (IsOverlapping(m_pStart))
-		{
-			SceneManager::Get()->SetActiveGameScene(L"HexBomberman");
-		}
-		else if(IsOverlapping(m_pExit))
-		{
-			PostQuitMessage(0);
-		}
+		SceneManager::Get()->SetActiveGameScene(L"HexBomberman");
+	}
+	if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pExit))
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerOne)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerTwo)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerThree)
+		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_B, GamepadIndex::playerFour))
+	{
+		PostQuitMessage(0);
 	}
 }
 

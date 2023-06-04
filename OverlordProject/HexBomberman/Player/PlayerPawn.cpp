@@ -18,7 +18,7 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 	m_pControllerComponent = AddComponent(new ControllerComponent(m_CharacterDesc.controller));
 
 	//Animations
-	const auto pBomberMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Skinned>();
+	const auto pBomberMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow_Skinned>();
 	pBomberMaterial->SetDiffuseTexture(L"Textures/Bomberman_Diffuse" + std::to_wstring(m_CharacterDesc.playerIdx) + L".png");
 
 	const auto pObject = AddChild(new GameObject);

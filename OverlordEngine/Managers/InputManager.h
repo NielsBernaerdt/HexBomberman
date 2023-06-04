@@ -25,7 +25,7 @@ public:
 	static const XMFLOAT2& GetMouseMovementNormalized() { return m_MouseMovementNormalized; }
 	static XMFLOAT2 GetThumbstickPosition(bool leftThumbstick = true, GamepadIndex playerIndex = GamepadIndex::playerOne);
 	static float GetTriggerPressure(bool leftTrigger = true, GamepadIndex playerIndex = GamepadIndex::playerOne);
-	static void SetVibration(float leftVibration, float rightVibration, GamepadIndex playerIndex = GamepadIndex::playerOne);
+	static void SetVibration(bool leftVibration, bool rightVibration, GamepadIndex playerIndex = GamepadIndex::playerOne);
 	static BYTE GetKeyState(int key, bool previousFrame = false);
 
 	static void CursorVisible(bool visible) { ShowCursor(visible); }

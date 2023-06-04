@@ -73,4 +73,9 @@ private:
 
 	//Players to kill
 	std::vector<PlayerPawn*> m_pPlayersToDie{};
+
+	//Vibration
+	bool m_IsVibrating{ false };
+	float m_AccVibTime{};
+	const float m_MaxVibTime{ 0.5f };
 };

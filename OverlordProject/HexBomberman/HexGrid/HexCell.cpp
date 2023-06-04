@@ -14,8 +14,8 @@ void HexCell::Initialize(const SceneContext&)
 	const auto pMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 
 	//Ground Tile
-	AddHexComp();
-	GetTransform()->Scale(0.975f, 1.f, 0.975f);
+	//AddHexComp();
+	//GetTransform()->Scale(0.975f, 1.f, 0.975f);
 	
 	//Actor
 	const auto pRigidBody = m_pGameObject->AddComponent(new RigidBodyComponent(true));
