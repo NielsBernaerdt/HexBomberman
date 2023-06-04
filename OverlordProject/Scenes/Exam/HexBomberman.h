@@ -43,6 +43,11 @@ private:
 
 	PostBloom* m_pPostBloom{};
 
+	//Contol Scheme
+	SpriteComponent* m_pControllerScheme{ nullptr };
+	bool m_ShowControllerScheme{true};
+	float m_AccControllerScheme{};
+
 	//Pause Menu
 	SpriteComponent* m_pPauseMenu{ nullptr };
 	SpriteComponent* m_pResume{ nullptr };

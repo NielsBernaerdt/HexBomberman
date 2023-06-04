@@ -11,6 +11,8 @@
 
 HexBomberman::~HexBomberman()
 {
+	if (m_ShowControllerScheme == false)
+		AddChild(m_pControllerScheme->GetGameObject());
 	if(m_ShowVictoryScreen == false)
 		AddChild(m_pVictoryMenu->GetGameObject());
 	if(m_SceneContext.settings.isGamePaused == false)
@@ -172,7 +174,12 @@ void HexBomberman::Initialize()
 
 	m_pPostBloom = MaterialManager::Get()->CreateMaterial<PostBloom>();
 	AddPostProcessingEffect(m_pPostBloom);
+	m_pPostBloom->SetIsEnabled(false);
 
+	//Controller Scheme
+	const auto pControllerBackground = new GameObject{};
+	m_pControllerScheme = pControllerBackground->AddComponent(new SpriteComponent(L"Textures/ControlScheme.png"));
+	AddChild(pControllerBackground);
 
 	//Pause Menu
 	auto inputAction = InputAction(PauseGame, InputState::released, -1, -1, XINPUT_GAMEPAD_START, GamepadIndex::playerOne);
@@ -185,7 +192,7 @@ void HexBomberman::Initialize()
 	m_SceneContext.pInput->AddInputAction(inputAction);
 
 	const auto pBackground = new GameObject{};
-	m_pPauseMenu = pBackground->AddComponent(new SpriteComponent(L"Textures/Background.png"));
+	m_pPauseMenu = pBackground->AddComponent(new SpriteComponent(L"Textures/BackgroundPause.png"));
 
 	const auto pResumeButton = pBackground->AddChild(new GameObject);
 	m_pResume = pResumeButton->AddComponent(new SpriteComponent(L"Textures/Button_Resume.png"));
@@ -256,6 +263,21 @@ void HexBomberman::ClearPlayerStartingArea()
 
 void HexBomberman::Update()
 {
+	if(m_ShowControllerScheme)
+	{
+		m_AccControllerScheme += m_SceneContext.pGameTime->GetElapsed();
+		if(m_AccControllerScheme >= 2.f)
+		{
+			m_ShowControllerScheme = false;
+			RemoveChild(m_pControllerScheme->GetGameObject());
+			m_pPostBloom->SetIsEnabled(true);
+		}
+		else
+		{
+			return;
+		}
+	}
+
 	if(m_IsVibrating)
 	{
 		m_AccVibTime += m_SceneContext.pGameTime->GetElapsed();

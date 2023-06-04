@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FreeCamera.h"
 
-#define ENABLE_CAMERA_MOVEMENT
+//#define ENABLE_CAMERA_MOVEMENT
 
 void FreeCamera::Initialize(const SceneContext& )
 {
