@@ -2,8 +2,6 @@
 #include "PlayerPawn.h"
 
 #include "HexBomberman/HexGrid/HexCell.h"
-#include "Materials/BasicMaterial_Deferred.h"
-#include "Materials/DiffuseMaterial_Skinned.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow_Skinned.h"
 
 PlayerPawn::PlayerPawn(const CharacterDesc& characterDesc) :
@@ -37,7 +35,6 @@ void PlayerPawn::Initialize(const SceneContext& /*sceneContext*/)
 void PlayerPawn::SetCurrentTile(HexCell* pHexCell)
 {
 	m_pCurrentCell = pHexCell;
-
 	if(pHexCell->HasPowerUp() == true)
 	{
 		pHexCell->CollectPowerUp(this);
@@ -87,7 +84,6 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	{
 		move.y = -1.0f;
 	}
-	//Optional: if move.y is near zero (abs(move.y) < epsilon), you could use the ThumbStickPosition.y for movement
 	if (abs(move.y) <= epsilon)
 	{
 		move.y = sceneContext.pInput->GetThumbstickPosition(true, static_cast<GamepadIndex>(m_CharacterDesc.playerIdx)).y;
@@ -100,7 +96,6 @@ void PlayerPawn::Update(const SceneContext& sceneContext)
 	{
 		move.x = -1.0f;
 	}
-	//Optional: if move.x is near zero (abs(move.x) < epsilon), you could use the Left ThumbStickPosition.x for movement
 	if (abs(move.x) <= epsilon)
 	{
 		move.x = sceneContext.pInput->GetThumbstickPosition(true, static_cast<GamepadIndex>(m_CharacterDesc.playerIdx)).x;

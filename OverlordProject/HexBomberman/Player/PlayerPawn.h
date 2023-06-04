@@ -52,11 +52,9 @@ public:
 	void IncreaseNrBombs();
 	void BombExploded();
 	void DrawImGui();
-
 	int GetNrBombs() const { return m_NrBombs; }
 	int GetNrBombsInPlay() const { return m_NrBombsInPlay; }
-
-	HexCell* GetCurrentCell() { return m_pCurrentCell; }
+	HexCell* GetCurrentCell() const { return m_pCurrentCell; }
 
 protected:
 	void Initialize(const SceneContext&) override;
@@ -75,14 +73,14 @@ private:
 	XMFLOAT3 m_TotalVelocity{};						//TotalVelocity with X/Z for Horizontal Movement AND Y for Vertical Movement (fall/jump)
 	XMFLOAT3 m_CurrentDirection{};					//Current/Last Direction based on Camera forward/right (Stored for deacceleration)
 
-	void PlaceBomb();
-
-	int m_BlastRange{ 1 };
-	int m_NrBombs{ 1 };
-	int m_NrBombsInPlay{ 0 };
-
 	//Animations
 	ModelAnimator* pAnimator{};
 	float m_AnimationSpeed{ 1.f };
 	int m_CurrentAnimationIdx{ 0 };
+	//Bomblogic
+	int m_BlastRange{ 1 };
+	int m_NrBombs{ 1 };
+	int m_NrBombsInPlay{ 0 };
+
+	void PlaceBomb();
 };
