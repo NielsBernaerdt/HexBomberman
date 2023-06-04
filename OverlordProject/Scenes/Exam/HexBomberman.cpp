@@ -11,8 +11,10 @@
 
 HexBomberman::~HexBomberman()
 {
-	AddChild(m_pPauseMenu->GetGameObject());
-	AddChild(m_pVictoryMenu->GetGameObject());
+	if(m_ShowVictoryScreen == false)
+		AddChild(m_pVictoryMenu->GetGameObject());
+	if(m_SceneContext.settings.isGamePaused == false)
+		AddChild(m_pPauseMenu->GetGameObject());
 }
 
 void HexBomberman::Initialize()
@@ -31,19 +33,19 @@ void HexBomberman::Initialize()
 
 	//Directional
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
-	m_SceneContext.pLights->GetDirectionalLight().intensity = 0.01f;
+	//m_SceneContext.pLights->GetDirectionalLight().intensity = 0.01f;
 	//m_SceneContext.pLights->GetDirectionalLight().isEnabled = false;
 
-	//Spot Light
-	Light light = {};
-	light.isEnabled = true;
-	light.position = { 1.f,3.f,1.f,1.0f };
-	//light.color = { 0.f,1.f,0.f,1.f };
-	light.color = { 1.f,1.f,1.f,1.f };
-	light.intensity = 1.f;
-	light.range = 5.0f;
-	light.type = LightType::Point;
-	m_SceneContext.pLights->AddLight(light);
+	////Spot Light
+	//Light light = {};
+	//light.isEnabled = true;
+	//light.position = { 1.f,3.f,1.f,1.0f };
+	////light.color = { 0.f,1.f,0.f,1.f };
+	//light.color = { 1.f,1.f,1.f,1.f };
+	//light.intensity = 1.f;
+	//light.range = 5.0f;
+	//light.type = LightType::Point;
+	//m_SceneContext.pLights->AddLight(light);
 
 	////Point Light
 	//light = {};
@@ -170,7 +172,6 @@ void HexBomberman::Initialize()
 
 	m_pPostBloom = MaterialManager::Get()->CreateMaterial<PostBloom>();
 	AddPostProcessingEffect(m_pPostBloom);
-	m_pPostBloom->SetIsEnabled(false);
 
 
 	//Pause Menu
@@ -225,14 +226,14 @@ void HexBomberman::ClearPlayerStartingArea()
 		{
 			m_IsAreaCleared = true;
 
-			if (pPlayerCell->HasCrate()) pPlayerCell->DestroyCrate();
+			if (pPlayerCell->HasCrate()) pPlayerCell->DestroyCrate(false);
 
 			for (const auto& pNeighbors : pPlayerCell->GetNeighbors())
 			{
 				if (pNeighbors == nullptr)
 					continue;
 
-				if (pNeighbors->HasCrate()) pNeighbors->DestroyCrate();
+				if (pNeighbors->HasCrate()) pNeighbors->DestroyCrate(false);
 
 				for (const auto& pNeighborsNeighbor : pNeighbors->GetNeighbors())
 				{
@@ -241,7 +242,7 @@ void HexBomberman::ClearPlayerStartingArea()
 
 					if (pNeighborsNeighbor->HasCrate())
 					{
-						pNeighborsNeighbor->DestroyCrate(); //Dit resulteert in 1 crate per neighbor
+						pNeighborsNeighbor->DestroyCrate(false); //Dit resulteert in 1 crate per neighbor
 					}
 					else
 					{
@@ -340,10 +341,12 @@ void HexBomberman::TogglePause()
 	if(m_SceneContext.settings.isGamePaused)
 	{
 		AddChild(m_pPauseMenu->GetGameObject());
+		m_pPostBloom->SetIsEnabled(false);
 	}
 	else
 	{
 		RemoveChild(m_pPauseMenu->GetGameObject());
+		m_pPostBloom->SetIsEnabled(true);
 	}
 }
 
@@ -377,6 +380,7 @@ void HexBomberman::CheckVictoryCondition()
 	{
 		AddChild(m_pVictoryMenu->GetGameObject());
 		m_ShowVictoryScreen = true;
+		m_pPostBloom->SetIsEnabled(false);
 	}
 }
 

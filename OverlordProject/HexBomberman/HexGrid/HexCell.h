@@ -25,7 +25,7 @@ public:
 	std::vector<HexCell*> GetTilesToExplode(int length) const;
 
 	bool HasCrate() const { return m_HasCrate; }
-	void DestroyCrate();
+	void DestroyCrate(bool spawnCrate = true);
 
 	void AddPowerUp(BasePowerUp* pPowerUp);
 	bool HasPowerUp() { return m_HasPowerUp; }

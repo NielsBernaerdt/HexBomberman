@@ -2,12 +2,15 @@
 #include "IncreaseExplosion.h"
 
 #include "HexBomberman/Player/PlayerPawn.h"
+#include "Materials/BasicMaterial_Deferred.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
 void IncreaseExplosion::Initialize(const SceneContext&)
 {
-	const auto BombItemMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-	BombItemMaterial->SetDiffuseTexture(L"Textures/BlastRangeItem_Diffuse.png");
+	const auto BombItemMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
+	BombItemMaterial->SetDiffuseMap(L"Textures/BlastRangeItem_Diffuse.png");
+	BombItemMaterial->SetNormalMap(L"Textures/Item_Normal.png");
+	BombItemMaterial->SetSpecularMap(L"Textures/Item_Specular.png");
 
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Item.ovm"));

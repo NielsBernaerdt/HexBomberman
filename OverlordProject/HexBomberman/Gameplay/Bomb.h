@@ -29,7 +29,11 @@ private:
 	const float m_ExplosionDuration{ 1.f };
 	const int m_BlastRange{ 0 };
 	float m_AccTime{};
+	bool m_HasSpawnedDanger{ false };
+	void SpawnDangerSigns();
 	void EndExplosion();
+
+	std::vector<GameObject*> m_pDangerTiles{};
 
 	bool m_HasExploded{ false };
 

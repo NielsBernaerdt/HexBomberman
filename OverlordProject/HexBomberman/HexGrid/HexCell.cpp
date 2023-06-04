@@ -60,10 +60,10 @@ void HexCell::PlaceBomb(PlayerPawn* pPlayer, int blastRange)
 	bombObject->GetTransform()->Translate(0.f, 0.5f, 0.f);
 }
 
-void HexCell::DestroyCrate()
+void HexCell::DestroyCrate(bool spawnCrate)
 {
 	m_HasCrate = false;
-	m_pCrateComponent->SpawnPowerUp(this);
+	if(spawnCrate) m_pCrateComponent->SpawnPowerUp(this);
 	m_pGameObject->RemoveChild(m_pCrateComponent->GetGameObject(), true);
 }
 

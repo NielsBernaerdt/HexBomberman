@@ -5,6 +5,7 @@
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
 #include "Materials/BasicMaterial_Deferred.h"
+#include "Materials/DiffuseMaterial.h"
 #include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 #include "Prefabs/SpherePrefab.h"
 
@@ -20,6 +21,7 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 {
 	const auto pBombMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
 	pBombMaterial->SetDiffuseMap(L"Textures/Bomb_Diffuse.png");
+	pBombMaterial->SetSpecularMap(L"Textures/Bomb_Specular.png");
 
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Bomb.ovm"));
@@ -57,6 +59,11 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 
 void Bomb::Update(const SceneContext& sceneContext)
 {
+	if(m_HasSpawnedDanger == false)
+	{
+		m_HasSpawnedDanger = true;
+		SpawnDangerSigns();
+	}
 	//////////
 	auto pos = GetTransform()->GetWorldPosition();
 	pos.y += 0.7f;
@@ -78,7 +85,8 @@ void Bomb::Update(const SceneContext& sceneContext)
 	}
 	else
 	{
-		if (m_AccTime >= 0.25f)
+		//if (m_AccTime >= 0.25f)
+		if (m_AccTime >= 0.01f)
 		{
 			if (m_pOwnerCell)
 				EndExplosion();
@@ -86,9 +94,40 @@ void Bomb::Update(const SceneContext& sceneContext)
 	}
 }
 
+void Bomb::SpawnDangerSigns()
+{
+	//Spawn Explosions on Neighbors
+	for (const auto neighbor : m_pOwnerCell->GetTilesToExplode(m_BlastRange))
+	{
+		if (neighbor == nullptr)
+			continue;
+
+		const auto pMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
+		pMaterial->SetDiffuseMap(L"Textures/Danger.png");
+
+		const auto pGroundObj = m_pGameObject->AddChild(new GameObject);
+		const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/Plane.ovm"));
+		pGroundModel->SetMaterial(pMaterial);
+		pGroundObj->GetTransform()->Scale(1.2f, 1.2f, 1.2f);
+		pGroundObj->GetTransform()->Rotate(90.f, 0.f, 0.f);
+		m_pDangerTiles.push_back(pGroundObj);
+
+		const auto currentPos = m_pGameObject->GetTransform()->GetWorldPosition();
+		const auto destinationPos = neighbor->GetTransform()->GetPosition();
+		pGroundObj->GetTransform()->Translate(
+			destinationPos.x - currentPos.x
+			, destinationPos.y - currentPos.y + 0.1f
+			, destinationPos.z - currentPos.z
+		);
+	}
+}
 
 void Bomb::Explode(int blastRange)
 {
+	for(auto& pDangerTile : m_pDangerTiles)
+	{
+		m_pGameObject->RemoveChild(pDangerTile, true);
+	}
 	//Spawn Initial Explosion
 	auto explosionObject = m_pGameObject->AddChild(new GameObject{});
 	m_pExplosionObjects.push_back(explosionObject->AddComponent(new Explosion{m_pOwnerCell}));
