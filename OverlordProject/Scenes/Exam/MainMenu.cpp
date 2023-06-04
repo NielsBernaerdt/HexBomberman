@@ -25,13 +25,17 @@ void MainMenu::Initialize()
 	const auto pFmod = SoundManager::Get()->GetSystem();
 	FMOD::Sound* pSound{};
 	FMOD_RESULT result = pFmod->createStream("Resources/Sounds/BackgroundMusic.mp3", FMOD_DEFAULT | FMOD_LOOP_NORMAL, nullptr, &pSound);
-	SoundManager::Get()->ErrorCheck(result); //Be sure to errocheck the result
-
+	SoundManager::Get()->ErrorCheck(result);
 	result = pFmod->playSound(pSound, nullptr, false, &m_pChannel2D);
 	m_pChannel2D->setVolume(0.025f);
-	SoundManager::Get()->ErrorCheck(result); //again: check result!
+	SoundManager::Get()->ErrorCheck(result);
 }
 void MainMenu::Update()
+{
+	CheckInput();
+}
+
+void MainMenu::CheckInput() const
 {
 	if ((InputManager::IsMouseButton(InputState::pressed, VK_LBUTTON) && IsOverlapping(m_pStart))
 		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_A, GamepadIndex::playerOne)

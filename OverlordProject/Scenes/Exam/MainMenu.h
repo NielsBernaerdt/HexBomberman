@@ -18,5 +18,6 @@ private:
 	SpriteComponent* m_pStart{ nullptr };
 	SpriteComponent* m_pExit{ nullptr };
 
+	void CheckInput() const;
 	bool IsOverlapping(SpriteComponent* pSpriteComponent) const;
 };

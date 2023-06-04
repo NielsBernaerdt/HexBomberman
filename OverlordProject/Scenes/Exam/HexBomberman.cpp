@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "HexBomberman.h"
 
-#include "HexBomberman/Gameplay/Bomb.h"
-#include "HexBomberman/Gameplay/Explosion.h"
 #include "HexBomberman/HexGrid/HexGrid.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
@@ -21,10 +19,11 @@ HexBomberman::~HexBomberman()
 
 void HexBomberman::Initialize()
 {
+	//Scene Settings
+	m_SceneContext.settings.showInfoOverlay = false;
 	m_SceneContext.settings.enableOnGUI = true;
-	//m_SceneContext.settings.drawPhysXDebug = false;
+	m_SceneContext.settings.drawPhysXDebug = false;
 	m_SceneContext.settings.drawGrid = false;
-
 	m_SceneContext.useDeferredRendering = true;
 
 	//Camera
@@ -32,59 +31,32 @@ void HexBomberman::Initialize()
 	dynamic_cast<FreeCamera*>(m_SceneContext.pCamera->GetGameObject())->SetRotation(60.f, 0.f);
 
 	//Lights
-
-	//Directional
 	m_SceneContext.pLights->SetDirectionalLight({ -95.6139526f,66.1346436f,-41.1850471f }, { 0.740129888f, -0.597205281f, 0.309117377f });
-	//m_SceneContext.pLights->GetDirectionalLight().intensity = 0.01f;
-	//m_SceneContext.pLights->GetDirectionalLight().isEnabled = false;
-
-	////Spot Light
-	//Light light = {};
-	//light.isEnabled = true;
-	//light.position = { 1.f,3.f,1.f,1.0f };
-	////light.color = { 0.f,1.f,0.f,1.f };
-	//light.color = { 1.f,1.f,1.f,1.f };
-	//light.intensity = 1.f;
-	//light.range = 5.0f;
-	//light.type = LightType::Point;
-	//m_SceneContext.pLights->AddLight(light);
-
-	////Point Light
-	//light = {};
-	//light.isEnabled = true;
-	//light.position = { 0.f,10.f,0.f,1.0f };
-	//light.color = { 0.f,1.f,0.f,1.f };
-	//light.intensity = 1.f;
-	//light.range = 30.0f;
-	//light.type = LightType::Point;
-	//m_SceneContext.pLights->AddLight(light);
 
 	//Materials
 	const auto pDefaultMaterial = PxGetPhysics().createMaterial(0.f, 0.f, 1.f);
 
-	//Sprite
+	//Fonts
 	m_pFont = ContentManager::Load<SpriteFont>(L"SpriteFonts/Consolas_32.fnt");
 
 	//Ground Actor
 	GameSceneExt::CreatePhysXGroundPlane(*this, pDefaultMaterial);
 
 	//Ground Object
-	//*********
 	const auto pGroundMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
 	pGroundMaterial->SetDiffuseTexture(L"Textures/GroundBrick.jpg");
-	//***********
 	const auto pGroundObj = AddChild(new GameObject());
 	const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/UnitPlane.ovm"));
 	pGroundModel->SetMaterial(pGroundMaterial);
 	pGroundObj->GetTransform()->Scale(5.0f, 1.0f, 5.0f);
 	pGroundObj->GetTransform()->Translate(5.f, -0.01f, 2.f);
-	//***********
 
 	//Hexagonal Grid
 	m_pHexGrid = AddChild(new HexGrid{});
-	XMFLOAT2 hudPos{ 30.f, 100.f };
 
+	//Players
 	const int nrPlayers{ 4 };
+	XMFLOAT2 hudPos{ 30.f, 100.f };
 	for (int i{}; i < nrPlayers; ++i)
 	{
 		//Character
@@ -97,8 +69,8 @@ void HexBomberman::Initialize()
 		characterDesc.playerIdx = i;
 
 		auto pCharacter = AddChild(new PlayerPawn(characterDesc));
-		m_pCharacters.push_back(pCharacter);
-		pCharacter->GetTransform()->Translate(m_StartPos[i].x, 1.f, m_StartPos[i].y);
+		m_pPlayers.push_back(pCharacter);
+		pCharacter->GetTransform()->Translate(m_pPlayerStartPositions[i].x, 1.f, m_pPlayerStartPositions[i].y);
 
 		//Input
 		auto inputAction = InputAction(CharacterMoveLeft + (10 * i), InputState::down, -1, -1, XINPUT_GAMEPAD_DPAD_LEFT, static_cast<GamepadIndex>(i));
@@ -119,11 +91,11 @@ void HexBomberman::Initialize()
 		//Set Trigger Callback functions for hexcells
 		auto cellCallBack = [=](GameObject* pTriggerObject, GameObject* pOtherObject, PxTriggerAction triggerAction)
 		{
-			auto it = std::find_if(m_pCharacters.begin(), m_pCharacters.end(), [&](const GameObject* elem) {
+			auto it = std::find_if(m_pPlayers.begin(), m_pPlayers.end(), [&](const GameObject* elem) {
 				return elem == pOtherObject;
 				});
 
-			if (it != m_pCharacters.end() && triggerAction == PxTriggerAction::ENTER)
+			if (it != m_pPlayers.end() && triggerAction == PxTriggerAction::ENTER)
 			{
 				dynamic_cast<PlayerPawn*>(pOtherObject)->SetCurrentTile(pTriggerObject->GetComponent<HexCell>());
 			}
@@ -135,27 +107,24 @@ void HexBomberman::Initialize()
 
 		//HUD
 		const auto pHUD = AddChild(new GameObject);
-		//Player One
-		const auto pPlayerOne = pHUD->AddChild(new GameObject);
-		pPlayerOne->GetTransform()->Translate(hudPos.x, hudPos.y, 0.f);
+		
+		const auto pPlayerHUD = pHUD->AddChild(new GameObject);
+		pPlayerHUD->GetTransform()->Translate(hudPos.x, hudPos.y, 0.f);
 
-		const auto pPortrait = pPlayerOne->AddChild(new GameObject);
+		const auto pPortrait = pPlayerHUD->AddChild(new GameObject);
 		pPortrait->AddComponent(new SpriteComponent(L"Textures/UI_Bomberman" + std::to_wstring(i) + L".png"));
 		pPortrait->GetTransform()->Translate(0.f, 80.f, 0.f);
 		pPortrait->GetTransform()->Scale(0.8f, 0.8f, 1.f);
 
-		const auto pBomb = pPlayerOne->AddChild(new GameObject);
+		const auto pBomb = pPlayerHUD->AddChild(new GameObject);
 		pBomb->AddComponent(new SpriteComponent(L"Textures/UI_BombIcon.png"));
 		pBomb->GetTransform()->Translate(140.f, 130.f, 0.f);
 
-		//second hud on 340 -> calculate delta
+		//Update position for next players' HUD
 		hudPos.y += 150.f;
 	}
 	
-	//Post Processing Stack
-	//=====================
-
-	//Particle System to help post processing work (TODO)
+	//Particle System
 	ParticleEmitterSettings settings{};
 	settings.velocity = { 0.f,6.f,0.f };
 	settings.minSize = 0.2f;
@@ -172,6 +141,7 @@ void HexBomberman::Initialize()
 	pParticle->AddComponent(new ParticleEmitterComponent(L"Textures/Fire.png", settings, 200));
 	pParticle->GetTransform()->Translate(0.f, -1.f, 1.f);
 
+	//Post Processing
 	m_pPostBloom = MaterialManager::Get()->CreateMaterial<PostBloom>();
 	AddPostProcessingEffect(m_pPostBloom);
 
@@ -220,29 +190,30 @@ void HexBomberman::Initialize()
 
 void HexBomberman::ClearPlayerStartingArea()
 {
-	//todo:: not error safe:
-	const auto& pCellOne = m_pCharacters[0]->GetCurrentCell();
-	const auto& pCellTwo = m_pCharacters[1]->GetCurrentCell();
+	if (m_IsPlayerStartingAreaCleared == true)
+		return;
+
+	//todo: change when players are dependant on nr of controllers
+	const auto& pCellOne = m_pPlayers[0]->GetCurrentCell();
+	const auto& pCellTwo = m_pPlayers[1]->GetCurrentCell();
 	if( pCellOne && pCellTwo && pCellOne == pCellTwo)
 		return;
 
-	//voor elke speler hun cell (+ zorg dat er geen crate staat)
-	//voor elke neighboring cell (+ zorg dat er geen crate staat)
-	//voor 1 van hun neighbors: zorg dat er geen crate staat
+	//For every players' current cell (+ remove the crate of this cell)
+	//For every neighbor of that cell (+ remove  the crate of this cell)
+	//For 1 neighbor of those neighbors (remove the crate of this cell)
 
-	for (const auto& pPlayer : m_pCharacters)
+	for (const auto& pPlayer : m_pPlayers)
 	{
 		if (const auto& pPlayerCell = pPlayer->GetCurrentCell())
 		{
-			m_IsAreaCleared = true;
-
+			m_IsPlayerStartingAreaCleared = true;
 			if (pPlayerCell->HasCrate()) pPlayerCell->DestroyCrate(false);
 
 			for (const auto& pNeighbors : pPlayerCell->GetNeighbors())
 			{
 				if (pNeighbors == nullptr)
 					continue;
-
 				if (pNeighbors->HasCrate()) pNeighbors->DestroyCrate(false);
 
 				for (const auto& pNeighborsNeighbor : pNeighbors->GetNeighbors())
@@ -252,7 +223,7 @@ void HexBomberman::ClearPlayerStartingArea()
 
 					if (pNeighborsNeighbor->HasCrate())
 					{
-						pNeighborsNeighbor->DestroyCrate(false); //Dit resulteert in 1 crate per neighbor
+						pNeighborsNeighbor->DestroyCrate(false);
 					}
 					else
 					{
@@ -266,52 +237,139 @@ void HexBomberman::ClearPlayerStartingArea()
 
 void HexBomberman::Update()
 {
-	if(m_ShowControllerScheme)
+	if (ManageControllerScheme()) return;
+
+	ManageControllerVibration();
+
+	ManagerPlayerDeaths();
+
+	ClearPlayerStartingArea();
+
+	ManageInput();
+
+	UpdateTextSprites();
+}
+
+void HexBomberman::TogglePause()
+{
+	m_SceneContext.settings.isGamePaused = !m_SceneContext.settings.isGamePaused;
+	if(m_SceneContext.settings.isGamePaused)
+	{
+		AddChild(m_pPauseMenu->GetGameObject());
+		m_pPostBloom->SetIsEnabled(false);
+	}
+	else
+	{
+		RemoveChild(m_pPauseMenu->GetGameObject());
+		m_pPostBloom->SetIsEnabled(true);
+	}
+}
+
+void HexBomberman::PlayerDied(PlayerPawn* pPlayerToDie)
+{
+	for(int i{}; i < m_pPlayers.size(); ++i)
+	{
+		if(m_pPlayers[i] == pPlayerToDie)
+		{
+			m_pPlayersToDie.push_back(pPlayerToDie);
+			m_pPlayers[i] = nullptr;
+			InputManager::SetVibration(true, true, static_cast<GamepadIndex>(i));
+			m_IsVibrating = true;
+		}
+	}
+}
+
+void HexBomberman::CheckVictoryCondition()
+{
+	int nrPlayersAlive{ 0 };
+	for(const auto& pPlayer : m_pPlayers)
+	{
+		if(pPlayer != nullptr)
+		{
+			++nrPlayersAlive;
+		}
+	}
+
+	if(nrPlayersAlive < 2)
+	{
+		AddChild(m_pVictoryMenu->GetGameObject());
+		m_ShowVictoryScreen = true;
+		m_pPostBloom->SetIsEnabled(false);
+	}
+}
+
+bool HexBomberman::IsOverlapping(const SpriteComponent* pSpriteComponent) const
+{
+	const auto posMouse{ InputManager::GetMousePosition() };
+	const auto spritePos{ pSpriteComponent->GetTransform()->GetWorldPosition() };
+	auto spriteDimensions{ pSpriteComponent->GetTextureDimensions() };
+	spriteDimensions.x *= pSpriteComponent->GetTransform()->GetScale().x;
+	spriteDimensions.y *= pSpriteComponent->GetTransform()->GetScale().y;
+
+	return (posMouse.x >= spritePos.x &&
+		posMouse.x <= spritePos.x + spriteDimensions.x &&
+		posMouse.y >= spritePos.y &&
+		posMouse.y <= spritePos.y + spriteDimensions.y);
+}
+
+void HexBomberman::OnGUI()
+{
+	DeferredRenderer::Get()->DrawImGui();
+	//
+	bool isEnabled = m_pPostBloom->IsEnabled();
+	ImGui::Checkbox("Bloom PP", &isEnabled);
+	m_pPostBloom->SetIsEnabled(isEnabled);
+}
+
+bool HexBomberman::ManageControllerScheme()
+{
+	if (m_ShowControllerScheme)
 	{
 		m_AccControllerScheme += m_SceneContext.pGameTime->GetElapsed();
-		if(m_AccControllerScheme >= 2.f)
+		if (m_AccControllerScheme >= 2.f)
 		{
 			m_ShowControllerScheme = false;
 			RemoveChild(m_pControllerScheme->GetGameObject());
 			m_pPostBloom->SetIsEnabled(true);
-		}
-		else
-		{
-			return;
+			return true;
 		}
 	}
+	return false;
+}
 
-	if(m_IsVibrating)
+void HexBomberman::ManageControllerVibration()
+{
+	if (m_IsVibrating)
 	{
 		m_AccVibTime += m_SceneContext.pGameTime->GetElapsed();
-		if(m_AccVibTime >= m_MaxVibTime)
+		if (m_AccVibTime >= m_MaxVibTime)
 		{
 			m_AccVibTime = 0.f;
-			for(int i{}; i < 4; ++i)
+			for (int i{}; i < 4; ++i)
 			{
 				InputManager::SetVibration(false, false, static_cast<GamepadIndex>(i));
 				m_IsVibrating = false;
 			}
 		}
 	}
+}
 
+void HexBomberman::ManagerPlayerDeaths()
+{
 	if (m_pPlayersToDie.size() >= 1)
 	{
-		for(auto pPlayer : m_pPlayersToDie)
+		for (const auto& pPlayer : m_pPlayersToDie)
 		{
 			RemoveChild(pPlayer, true);
 		}
 		CheckVictoryCondition();
 		m_pPlayersToDie = std::vector<PlayerPawn*>{};
 	}
+}
 
-
-	if(m_IsAreaCleared == false)
-	{
-		ClearPlayerStartingArea();
-	}
-
-	if(InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerOne)
+void HexBomberman::ManageInput()
+{
+	if (InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerOne)
 		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerTwo)
 		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerThree)
 		|| InputManager::IsGamepadButton(InputState::pressed, XINPUT_GAMEPAD_START, GamepadIndex::playerFour))
@@ -360,105 +418,30 @@ void HexBomberman::Update()
 			PostQuitMessage(0);
 		}
 	}
-	if(m_SceneContext.settings.isGamePaused == false
-		&& m_ShowVictoryScreen == false)
+}
+
+void HexBomberman::UpdateTextSprites() const
+{
+	if (m_SceneContext.settings.isGamePaused == false
+		&& m_ShowVictoryScreen == false
+		&& m_ShowControllerScheme == false)
 	{
 		XMFLOAT2 nrBombsPos{ m_TextPosition };
 		XMFLOAT2 namePos{ 160.f, 190.f };
-		for (int i{}; i < m_pCharacters.size(); ++i)
+		for (int i{}; i < m_pPlayers.size(); ++i)
 		{
 			std::string text{};
-			if (m_pCharacters[i] != nullptr)
-				text = std::to_string((m_pCharacters[i]->GetNrBombs() - m_pCharacters[i]->GetNrBombsInPlay())) + "/" + std::to_string(m_pCharacters[i]->GetNrBombs());
+			if (m_pPlayers[i] != nullptr)
+				text = std::to_string((m_pPlayers[i]->GetNrBombs() - m_pPlayers[i]->GetNrBombsInPlay())) + "/" + std::to_string(m_pPlayers[i]->GetNrBombs());
 			else
 				text = "0/0";
+			//Draw Nr Bombs available
 			TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode(text), nrBombsPos, m_TextColor);
-			//
-			//Player One Name
+			//Draw Player Name
 			TextRenderer::Get()->DrawText(m_pFont, StringUtil::utf8_decode("Player " + std::to_string(i + 1)), namePos, XMFLOAT4(Colors::White));
 
-			//
 			namePos.y += 150.f;
 			nrBombsPos.y += 150.f;
 		}
 	}
-}
-
-void HexBomberman::TogglePause()
-{
-	m_SceneContext.settings.isGamePaused = !m_SceneContext.settings.isGamePaused;
-	if(m_SceneContext.settings.isGamePaused)
-	{
-		AddChild(m_pPauseMenu->GetGameObject());
-		m_pPostBloom->SetIsEnabled(false);
-	}
-	else
-	{
-		RemoveChild(m_pPauseMenu->GetGameObject());
-		m_pPostBloom->SetIsEnabled(true);
-	}
-}
-
-void HexBomberman::PlayerDied(PlayerPawn* pPlayerToDie)
-{
-	for(int i{}; i < m_pCharacters.size(); ++i)
-	{
-		if(m_pCharacters[i] == pPlayerToDie)
-		{
-			m_pPlayersToDie.push_back(pPlayerToDie);
-			m_pCharacters[i] = nullptr;
-			InputManager::SetVibration(true, true, static_cast<GamepadIndex>(i));
-			m_IsVibrating = true;
-		}
-	}
-
-	//RemoveChild(*it, false);
-	//*it = nullptr;
-}
-
-void HexBomberman::CheckVictoryCondition()
-{
-	int nrPlayersAlive{ 0 };
-	for(const auto& pPlayer : m_pCharacters)
-	{
-		if(pPlayer != nullptr)
-		{
-			++nrPlayersAlive;
-		}
-	}
-
-	if(nrPlayersAlive < 2)
-	{
-		AddChild(m_pVictoryMenu->GetGameObject());
-		m_ShowVictoryScreen = true;
-		m_pPostBloom->SetIsEnabled(false);
-	}
-}
-
-bool HexBomberman::IsOverlapping(SpriteComponent* pSpriteComponent) const
-{
-	const auto posMouse{ m_SceneContext.pInput->GetMousePosition() };
-	const auto spritePos{ pSpriteComponent->GetTransform()->GetWorldPosition() };
-	auto spriteDimensions{ pSpriteComponent->GetTextureDimensions() };
-	spriteDimensions.x *= pSpriteComponent->GetTransform()->GetScale().x;
-	spriteDimensions.y *= pSpriteComponent->GetTransform()->GetScale().y;
-
-	return (posMouse.x >= spritePos.x &&
-		posMouse.x <= spritePos.x + spriteDimensions.x &&
-		posMouse.y >= spritePos.y &&
-		posMouse.y <= spritePos.y + spriteDimensions.y);
-}
-
-void HexBomberman::OnGUI()
-{
-	ImGui::SliderFloat2("Position", &m_TextPosition.x, 0, m_SceneContext.windowWidth);
-	ImGui::ColorEdit4("Color", &m_TextColor.x, ImGuiColorEditFlags_NoInputs);
-	//
-	DeferredRenderer::Get()->DrawImGui();
-	//
-	bool isEnabled = m_pPostBloom->IsEnabled();
-	ImGui::Checkbox("Bloom PP", &isEnabled);
-	m_pPostBloom->SetIsEnabled(isEnabled);
-	//
-	//m_pCharacters->DrawImGui();
 }
