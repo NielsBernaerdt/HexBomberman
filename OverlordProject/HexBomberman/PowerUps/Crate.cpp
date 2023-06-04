@@ -3,10 +3,8 @@
 
 #include "ExtraBomb.h"
 #include "IncreaseExplosion.h"
-#include "Prefabs/CubePrefab.h"
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "Materials/BasicMaterial_Deferred.h"
-#include "Materials/Shadow/DiffuseMaterial_Shadow.h"
 
 void Crate::Initialize(const SceneContext&)
 {
@@ -18,8 +16,6 @@ void Crate::Initialize(const SceneContext&)
 	pCrateMaterial->SetDiffuseMap(L"Textures/Crate_Diffuse.png");
 	pCrateMaterial->SetNormalMap(L"Textures/Crate_Normal.png");
 	pCrateMaterial->SetSpecularMap(L"Textures/Crate_Specular.png");
-	//const auto pCrateMaterial = MaterialManager::Get()->CreateMaterial<DiffuseMaterial_Shadow>();
-	//pCrateMaterial->SetDiffuseTexture(L"Textures/Crate_Diffuse.png");
 	const auto pObject = m_pGameObject->AddChild(new GameObject);
 	const auto pModel = pObject->AddComponent(new ModelComponent(L"Meshes/Crate.ovm"));
 	pModel->SetMaterial(pCrateMaterial);
@@ -36,9 +32,9 @@ void Crate::Initialize(const SceneContext&)
 	,GetTransform()->GetWorldPosition().y
 	,GetTransform()->GetWorldPosition().z };
 
-	//Explosion Actor
-	const auto explosionTrigger = m_pGameObject->AddComponent(new RigidBodyComponent(true));
-	explosionTrigger->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, *pDefaultMaterial, false, localPose);
+	//Actor
+	const auto pTrigger = m_pGameObject->AddComponent(new RigidBodyComponent(true));
+	pTrigger->AddCollider(PxBoxGeometry{ 0.5f, 2.f, 0.5f }, *pDefaultMaterial, false, localPose);
 }
 
 void Crate::SpawnPowerUp(HexCell* pHexCellParent) const

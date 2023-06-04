@@ -15,6 +15,4 @@ public:
 
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
-
-private:
 };

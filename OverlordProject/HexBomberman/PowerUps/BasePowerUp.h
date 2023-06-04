@@ -13,7 +13,4 @@ public:
 	BasePowerUp& operator=(BasePowerUp&& other) noexcept = delete;
 
 	virtual void CollectPowerUp(PlayerPawn* /*pPlayer*/) {}
-
-protected:
-	void Update(const SceneContext&) override;
 };
