@@ -24,20 +24,18 @@ protected:
 private:
 	HexCell* m_pOwnerCell;
 	PlayerPawn* m_pPlayer;
+	const int m_BlastRange;
 
+	float m_AccTime{};
 	std::vector<Explosion*> m_pExplosionObjects{};
 	const float m_ExplosionDuration{ 1.f };
-	const int m_BlastRange{ 0 };
-	float m_AccTime{};
+	std::vector<GameObject*> m_pDangerTiles{};
 	bool m_HasSpawnedDanger{ false };
+	GameObject* pParticle{ nullptr };
+	bool m_HasExploded{ false };
+	bool m_HasUpdatedParticlePosition{ false };
+	FMOD::Channel* m_pChannel2D{};
+
 	void SpawnDangerSigns();
 	void EndExplosion();
-
-	std::vector<GameObject*> m_pDangerTiles{};
-
-	bool m_HasExploded{ false };
-
-	GameObject* pParticle{ nullptr };
-
-	FMOD::Channel* m_pChannel2D{};
 };

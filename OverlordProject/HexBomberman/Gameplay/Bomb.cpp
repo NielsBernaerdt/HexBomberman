@@ -5,9 +5,6 @@
 #include "HexBomberman/HexGrid/HexCell.h"
 #include "HexBomberman/Player/PlayerPawn.h"
 #include "Materials/BasicMaterial_Deferred.h"
-#include "Materials/DiffuseMaterial.h"
-#include "Materials/Shadow/DiffuseMaterial_Shadow.h"
-#include "Prefabs/SpherePrefab.h"
 
 Bomb::Bomb(HexCell* ownerCell, PlayerPawn* pPlayer, int blastRange)
 	: m_pOwnerCell(ownerCell)
@@ -15,7 +12,6 @@ Bomb::Bomb(HexCell* ownerCell, PlayerPawn* pPlayer, int blastRange)
 	, m_BlastRange(blastRange)
 {
 }
-
 
 void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 {
@@ -29,7 +25,6 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 
 	pObject->GetTransform()->Rotate(90.f, 0.f, 0.f);
 	pObject->GetTransform()->Translate(0.f, -0.5f, 0.f);
-
 
 	//Particle System
 	ParticleEmitterSettings settings{};
@@ -51,27 +46,28 @@ void Bomb::Initialize(const SceneContext& /*sceneContext*/)
 	const auto pFmod = SoundManager::Get()->GetSystem();
 	FMOD::Sound* pSound{};
 	FMOD_RESULT result = pFmod->createStream("Resources/Sounds/FuseLoop.wav", FMOD_DEFAULT | FMOD_LOOP_NORMAL, nullptr, &pSound);
-	SoundManager::Get()->ErrorCheck(result); //Be sure to errocheck the result
+	SoundManager::Get()->ErrorCheck(result);
 
 	result = pFmod->playSound(pSound, nullptr, false, &m_pChannel2D);
-	SoundManager::Get()->ErrorCheck(result); //again: check result!
+	SoundManager::Get()->ErrorCheck(result);
 }
 
 void Bomb::Update(const SceneContext& sceneContext)
 {
+	if(m_HasUpdatedParticlePosition == false)
+	{
+		m_HasUpdatedParticlePosition = true;
+
+		auto pos = GetTransform()->GetWorldPosition();
+		pos.y += 0.7f;
+		pParticle->GetTransform()->Translate(pos);
+	}
 	if(m_HasSpawnedDanger == false)
 	{
 		m_HasSpawnedDanger = true;
 		SpawnDangerSigns();
 	}
-	//////////
-	auto pos = GetTransform()->GetWorldPosition();
-	pos.y += 0.7f;
-	pParticle->GetTransform()->Translate(pos);
-	/// <summary>
-	/// ///////
-	/// </summary>
-	/// <param name="sceneContext"></param>
+	//Handle Explosion
 	m_AccTime += sceneContext.pGameTime->GetElapsed();
 	if (m_HasExploded == false)
 	{
@@ -85,7 +81,6 @@ void Bomb::Update(const SceneContext& sceneContext)
 	}
 	else
 	{
-		//if (m_AccTime >= 0.25f)
 		if (m_AccTime >= 0.01f)
 		{
 			if (m_pOwnerCell)
@@ -96,14 +91,13 @@ void Bomb::Update(const SceneContext& sceneContext)
 
 void Bomb::SpawnDangerSigns()
 {
-	//Spawn Explosions on Neighbors
+	const auto pMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
+	pMaterial->SetDiffuseMap(L"Textures/Danger.png");
+
 	for (const auto neighbor : m_pOwnerCell->GetTilesToExplode(m_BlastRange))
 	{
 		if (neighbor == nullptr)
 			continue;
-
-		const auto pMaterial = MaterialManager::Get()->CreateMaterial<BasicMaterial_Deferred>();
-		pMaterial->SetDiffuseMap(L"Textures/Danger.png");
 
 		const auto pGroundObj = m_pGameObject->AddChild(new GameObject);
 		const auto pGroundModel = pGroundObj->AddComponent(new ModelComponent(L"Meshes/Plane.ovm"));
@@ -124,7 +118,7 @@ void Bomb::SpawnDangerSigns()
 
 void Bomb::Explode(int blastRange)
 {
-	for(auto& pDangerTile : m_pDangerTiles)
+	for(const auto& pDangerTile : m_pDangerTiles)
 	{
 		m_pGameObject->RemoveChild(pDangerTile, true);
 	}
@@ -139,7 +133,6 @@ void Bomb::Explode(int blastRange)
 		, destinationPos.y - currentPos.y + 0.5f
 		, destinationPos.z - currentPos.z
 	);
-
 	//Spawn Explosions on Neighbors
 	for (const auto neighbor : m_pOwnerCell->GetTilesToExplode(blastRange))
 	{
@@ -161,22 +154,20 @@ void Bomb::Explode(int blastRange)
 
 void Bomb::EndExplosion()
 {
-	//
+	//Stop Fuse Audio
 	m_pChannel2D->setPaused(true);
-	//Sound 2D
+	//Play Explosion Audio
 	const auto pFmod = SoundManager::Get()->GetSystem();
 	FMOD::Sound* pSound{};
 	FMOD_RESULT result = pFmod->createStream("Resources/Sounds/Explosion.wav", FMOD_DEFAULT, nullptr, &pSound);
-	SoundManager::Get()->ErrorCheck(result); //Be sure to errocheck the result
-
+	SoundManager::Get()->ErrorCheck(result);
 	result = pFmod->playSound(pSound, nullptr, false, &m_pChannel2D);
 	m_pChannel2D->setVolume(0.075f);
-	SoundManager::Get()->ErrorCheck(result); //again: check result!
-
+	SoundManager::Get()->ErrorCheck(result);
+	//Explode
 	m_pPlayer->BombExploded();
 
-	//todo: Do this in Crate.cpp using collision event?
-	for(auto explosionObject : m_pExplosionObjects)
+	for(const auto& explosionObject : m_pExplosionObjects)
 	{
 		const auto pHexCell = explosionObject->GetOwnerTile();
 		if (pHexCell->HasCrate() == true)

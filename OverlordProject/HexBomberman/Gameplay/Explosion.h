@@ -12,7 +12,7 @@ public:
 	Explosion& operator=(const Explosion& other) = delete;
 	Explosion& operator=(Explosion&& other) noexcept = delete;
 
-	HexCell* GetOwnerTile() { return m_pOwnerTile; }
+	HexCell* GetOwnerTile() const { return m_pOwnerTile; }
 
 protected:
 	void Initialize(const SceneContext& sceneContext) override;
@@ -20,5 +20,5 @@ protected:
 private:
 	HexCell* m_pOwnerTile{ nullptr };
 
-	void AddCubeComp();
+	void AddCubeComp() const;
 };
